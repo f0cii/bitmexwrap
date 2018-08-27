@@ -6,6 +6,7 @@ import (
 	"time"
 
 	. "github.com/SuperGod/coinex"
+	"github.com/SuperGod/coinex/bitmex/models"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
@@ -29,19 +30,21 @@ type OrderBookL2 struct {
 	Symbol string  `json:"symbol"`
 }
 
+type TradeBitmex models.Trade
+
 // Trade Individual & Bucketed Trades
-type TradeBitmex struct {
-	ForeignNotional float64 `json:"foreignNotional"`
-	GrossValue      int64   `json:"grossValue"`
-	HomeNotional    float64 `json:"homeNotional"`
-	Price           float64 `json:"price"`
-	Side            string  `json:"side"`
-	Size            int64   `json:"size"`
-	Symbol          string  `json:"symbol"`
-	TickDirection   string  `json:"tickDirection"`
-	Timestamp       string  `json:"timestamp"`
-	TrdMatchID      string  `json:"trdMatchID"`
-}
+// type TradeBitmex struct {
+// 	ForeignNotional float64 `json:"foreignNotional"`
+// 	GrossValue      int64   `json:"grossValue"`
+// 	HomeNotional    float64 `json:"homeNotional"`
+// 	Price           float64 `json:"price"`
+// 	Side            string  `json:"side"`
+// 	Size            int64   `json:"size"`
+// 	Symbol          string  `json:"symbol"`
+// 	TickDirection   string  `json:"tickDirection"`
+// 	Timestamp       string  `json:"timestamp"`
+// 	TrdMatchID      string  `json:"trdMatchID"`
+// }
 
 // Announcement General Announcements
 type Announcement struct {
@@ -147,7 +150,7 @@ func (r *Resp) Decode(buf []byte) (err error) {
 			}
 			r.data = orderbooks
 		case bitmexWSTrade:
-			var trades []TradeBitmex
+			var trades []*models.Trade
 			err = json.Unmarshal([]byte(raw), &trades)
 			if err != nil {
 				return
@@ -168,11 +171,11 @@ func (r *Resp) Decode(buf []byte) (err error) {
 	return
 }
 
-func (r *Resp) GetTradeData() (trades []TradeBitmex) {
+func (r *Resp) GetTradeData() (trades []*models.Trade) {
 	if r.Table != bitmexWSTrade || r.data == nil {
 		return
 	}
-	trades, _ = r.data.([]TradeBitmex)
+	trades, _ = r.data.([]*models.Trade)
 	return
 }
 
@@ -207,12 +210,8 @@ func (o OrderBookMap) GetDepth() (depth Depth) {
 	return
 }
 
-func transTrade(v TradeBitmex) (t Trade) {
+func transTrade(v *models.Trade) (t Trade) {
 	// timestamp: 2018-08-01T05:58:00.737Z
-	tm, err := time.Parse(time.RFC3339, v.Timestamp)
-	if err != nil {
-		log.Info("parse time failed:", v.Timestamp)
-	}
-	t = Trade{Price: v.Price, Size: float64(v.Size), Side: v.Side, TickDirection: v.TickDirection, Time: tm}
+	t = Trade{ID: v.TrdMatchID, Price: v.Price, Size: float64(v.Size), Side: v.Side, TickDirection: v.TickDirection, Time: time.Time(*v.Timestamp)}
 	return
 }

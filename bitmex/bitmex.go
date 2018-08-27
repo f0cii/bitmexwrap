@@ -3,7 +3,6 @@ package bitmex
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/url"
 	"time"
 
@@ -15,10 +14,12 @@ import (
 	"github.com/SuperGod/coinex/bitmex/client/trade"
 	apiuser "github.com/SuperGod/coinex/bitmex/client/user"
 	"github.com/SuperGod/coinex/bitmex/models"
+	"github.com/go-openapi/strfmt"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
-	BaseURL     = "https://www.bitmex.com/api/v1"
+	BaseURL     = "www.bitmex.com"
 	TestBaseURL = "testnet.bitmex.com"
 )
 
@@ -298,5 +299,87 @@ func (b *Bitmex) SetLever(lever float64) (err error) {
 
 func (b *Bitmex) GetLever() (lever float64, err error) {
 	lever = b.lever
+	return
+}
+
+func (b *Bitmex) Kline(start, end time.Time, bSize string) (klines []*models.TradeBin, err error) {
+	startTime := strfmt.DateTime(start)
+	endTime := strfmt.DateTime(end)
+	var nStart int32
+	var nCount int32
+	var nRet int32
+	params := &trade.TradeGetBucketedParams{BinSize: &bSize, StartTime: &startTime, EndTime: &endTime}
+	for {
+		params.Start = &nStart
+		params.Count = &nCount
+		klineInfo, err := b.api.Trade.TradeGetBucketed(params)
+		if err != nil {
+			break
+		}
+		klines = append(klines, klineInfo.Payload...)
+		nRet = int32(len(klineInfo.Payload))
+		nStart += nRet
+		if nRet < nCount {
+			break
+		}
+	}
+	return
+}
+
+// KlineRecent get recent nCount klines
+func (b *Bitmex) KlineRecent(nCount int32, bSize string) (klines []*models.TradeBin, err error) {
+	bReverse := true
+	params := &trade.TradeGetBucketedParams{BinSize: &bSize, Count: &nCount, Reverse: &bReverse}
+	klineInfo, err := b.api.Trade.TradeGetBucketed(params)
+	if err != nil {
+		return
+	}
+	klines = klineInfo.Payload
+	return
+}
+
+// Trades get trades
+func (b *Bitmex) Trades(start, end time.Time) (trades []Trade, err error) {
+	startTime := strfmt.DateTime(start)
+	endTime := strfmt.DateTime(end)
+	var nStart, nCount, nRet int32
+	nCount = 500
+	params := &trade.TradeGetParams{StartTime: &startTime, EndTime: &endTime}
+	for {
+		params.Start = &nStart
+		tradeInfo, err := b.api.Trade.TradeGet(params)
+		if err != nil {
+			break
+		}
+		nRet = int32(len(tradeInfo.Payload))
+		for _, v := range tradeInfo.Payload {
+			trades = append(trades, transTrade(v))
+		}
+		nStart += nRet
+		if nRet < nCount {
+			break
+		}
+	}
+	return
+}
+
+func (b *Bitmex) TradesChan(start, end time.Time) (trades chan []interface{}, err error) {
+	paramFunc := func() DownParam {
+		p := trade.NewTradeGetParams()
+		return p
+	}
+	downFunc := func(param DownParam) (data []interface{}, err1 error) {
+		tradeParams := param.(*trade.TradeGetParams)
+		trades, err1 := b.api.Trade.TradeGet(tradeParams)
+		if err1 != nil {
+			return
+		}
+		for _, v := range trades.Payload {
+			data = append(data, v)
+		}
+		return
+	}
+	d := NewDataDownload(strfmt.DateTime(start), strfmt.DateTime(end), paramFunc, downFunc, 500, 10)
+	trades = d.Start()
 	return
 }

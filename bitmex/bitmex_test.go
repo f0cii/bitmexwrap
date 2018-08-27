@@ -208,3 +208,12 @@ func TestCancelAllOrders(t *testing.T) {
 	}
 	t.Log("cancel Orders", orders)
 }
+
+func TestKlineRecent(t *testing.T) {
+	api := GetClient()
+	klines, err := api.KlineRecent(10, "1m")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	t.Log("klines", klines)
+}

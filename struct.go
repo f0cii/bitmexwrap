@@ -40,6 +40,7 @@ type Balance struct {
 }
 
 type Trade struct {
+	ID            string
 	Price         float64
 	Size          float64
 	Side          string

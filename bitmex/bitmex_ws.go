@@ -13,6 +13,7 @@ import (
 	"time"
 
 	. "github.com/SuperGod/coinex"
+	"github.com/SuperGod/coinex/bitmex/models"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 )
@@ -26,6 +27,10 @@ const (
 	bitmexWSOrderbookL10 = "orderBook10"
 	bitmexWSTrade        = "trade"
 	bitmexWSAnnouncement = "announcement"
+	bitmexWSLiquidation  = "liquidation"
+
+	bitmexWSOrder    = "order"
+	bitmexWSPosition = "position"
 
 	bitmexActionInitialData = "partial"
 	bitmexActionInsertData  = "insert"
@@ -46,7 +51,7 @@ type BitmexWS struct {
 	partialLoadedTrades    bool
 	partialLoadedOrderbook bool
 	orderBook              OrderBookMap
-	trades                 []TradeBitmex
+	trades                 []*models.Trade
 
 	pongChan chan int
 	shutdown *Shutdown
@@ -131,11 +136,15 @@ func (bw *BitmexWS) SetDepthChan(depthChan chan Depth) {
 }
 
 func (bw *BitmexWS) Connect() (err error) {
-	uProxy, err := url.Parse(bw.proxy)
-	if err != nil {
-		return err
+	dialer := websocket.Dialer{}
+	if bw.proxy != "" {
+		uProxy, err := url.Parse(bw.proxy)
+		if err != nil {
+			return err
+		}
+		dialer.Proxy = http.ProxyURL(uProxy)
 	}
-	dialer := websocket.Dialer{Proxy: http.ProxyURL(uProxy)}
+
 	bw.wsConn, _, err = dialer.Dial(bw.baseURL, nil)
 	if err != nil {
 		return err
@@ -153,6 +162,10 @@ func (bw *BitmexWS) Connect() (err error) {
 	log.Debug("welcome:", string(p))
 	go bw.connectionHandler()
 	go bw.handleMessage()
+	err = bw.sendAuth()
+	if err != nil {
+		return err
+	}
 	err = bw.subscribe()
 	if err != nil {
 		return err
@@ -254,6 +267,8 @@ func (bw *BitmexWS) subscribe() (err error) {
 		bitmexWSOrderbookL2+":"+bw.symbol)
 	subscriber.Args = append(subscriber.Args,
 		bitmexWSTrade+":"+bw.symbol)
+	subscriber.Args = append(subscriber.Args,
+		bitmexWSPosition+":"+bw.symbol)
 
 	err = bw.wsConn.WriteJSON(subscriber)
 	if err != nil {
@@ -311,6 +326,7 @@ func (bw *BitmexWS) handleMessage() {
 			case bitmexWSAnnouncement:
 				// err = bw.processTrade(&ret)
 			default:
+				log.Println(ret.Table, msg)
 			}
 		} else {
 
@@ -376,7 +392,7 @@ func (bw *BitmexWS) processOrderbook(msg *Resp) (err error) {
 }
 
 func (bw *BitmexWS) processTrade(msg *Resp) (err error) {
-	var datas []TradeBitmex
+	var datas []*models.Trade
 	switch msg.Action {
 	case bitmexActionInitialData:
 		if !bw.partialLoadedTrades {

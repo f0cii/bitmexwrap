@@ -1,8 +1,11 @@
 package bitmex
 
 import (
+	"time"
+
 	"github.com/SuperGod/coinex/bitmex/client/order"
 	"github.com/SuperGod/coinex/bitmex/models"
+	. "github.com/SuperGod/trademodel"
 )
 
 const (
@@ -15,101 +18,160 @@ const (
 	OrderTypeStopLimit = "StopLimit" // stop lose with limit price, must set stopPx
 )
 
+func transOrder(o *models.Order) (ret *Order) {
+	ret = &Order{OrderID: *o.OrderID,
+		Currency: o.Currency,
+		Amount:   float64(o.OrderQty),
+		Price:    o.AvgPx,
+		Status:   o.OrdStatus,
+		Side:     o.Side,
+		Time:     time.Time(o.Timestamp)}
+	return
+}
+
 // OpenLong open long with price
-func (b *Bitmex) OpenLong(price float64, amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) OpenLong(price float64, amount float64) (ret *Order, err error) {
 	comment := "open long with bitmex api"
 	side := "Buy"
 	orderType := "Limit"
 	nAmount := int32(amount)
-	newOrder, err = b.createOrder(price, nAmount, side, orderType, comment)
+	newOrder, err := b.createOrder(price, nAmount, side, orderType, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // CloseLong close long with price
-func (b *Bitmex) CloseLong(price float64, amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) CloseLong(price float64, amount float64) (ret *Order, err error) {
 	comment := "close long with bitmex api"
 	nAmount := 0 - int32(amount)
-	newOrder, err = b.createOrder(price, nAmount, OrderSell, OrderTypeLimit, comment)
+	newOrder, err := b.createOrder(price, nAmount, OrderSell, OrderTypeLimit, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // OpenShort open short with price
-func (b *Bitmex) OpenShort(price float64, amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) OpenShort(price float64, amount float64) (ret *Order, err error) {
 	comment := "open short with bitmex api"
 	nAmount := 0 - int32(amount)
-	newOrder, err = b.createOrder(price, nAmount, OrderSell, OrderTypeLimit, comment)
+	newOrder, err := b.createOrder(price, nAmount, OrderSell, OrderTypeLimit, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // CloseShort close short with price
-func (b *Bitmex) CloseShort(price float64, amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) CloseShort(price float64, amount float64) (ret *Order, err error) {
 	comment := "close short with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err = b.createOrder(price, nAmount, OrderBuy, OrderTypeLimit, comment)
+	newOrder, err := b.createOrder(price, nAmount, OrderBuy, OrderTypeLimit, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // OpenLongMarket open long with market price
-func (b *Bitmex) OpenLongMarket(amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) OpenLongMarket(amount float64) (ret *Order, err error) {
 	comment := "open market long with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err = b.createOrder(0, nAmount, OrderBuy, OrderTypeMarket, comment)
+	newOrder, err := b.createOrder(0, nAmount, OrderBuy, OrderTypeMarket, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // CloseLongarket close long with market price
-func (b *Bitmex) CloseLongMarket(amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) CloseLongMarket(amount float64) (ret *Order, err error) {
 	comment := "close market long with bitmex api"
 	nAmount := 0 - int32(amount)
-	newOrder, err = b.createOrder(0, nAmount, OrderSell, OrderTypeMarket, comment)
+	newOrder, err := b.createOrder(0, nAmount, OrderSell, OrderTypeMarket, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // OpenShortMarket open short with market price
-func (b *Bitmex) OpenShortMarket(amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) OpenShortMarket(amount float64) (ret *Order, err error) {
 	comment := "open market short with bitmex api"
 	nAmount := 0 - int32(amount)
-	newOrder, err = b.createOrder(0, nAmount, OrderSell, OrderTypeMarket, comment)
+	newOrder, err := b.createOrder(0, nAmount, OrderSell, OrderTypeMarket, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // CloseShortMarket close short with market price
-func (b *Bitmex) CloseShortMarket(amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) CloseShortMarket(amount float64) (ret *Order, err error) {
 	comment := "close market short with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err = b.createOrder(0, nAmount, OrderBuy, OrderTypeMarket, comment)
+	newOrder, err := b.createOrder(0, nAmount, OrderBuy, OrderTypeMarket, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // StopLoseBuy when marketPrice>=stopPrice, create buy order with price and amount
-func (b *Bitmex) StopLoseBuy(stopPrice, price, amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) StopLoseBuy(stopPrice, price, amount float64) (ret *Order, err error) {
 	comment := "stop limit buy with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err = b.createStopOrder(stopPrice, price, nAmount, OrderBuy, OrderTypeStopLimit, comment)
+	newOrder, err := b.createStopOrder(stopPrice, price, nAmount, OrderBuy, OrderTypeStopLimit, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // StopLoseSell when marketPrice<=stopPrice, create sell order with price and amount
-func (b *Bitmex) StopLoseSell(stopPrice, price, amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) StopLoseSell(stopPrice, price, amount float64) (ret *Order, err error) {
 	comment := "stop limit buy with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err = b.createStopOrder(stopPrice, price, nAmount, OrderSell, OrderTypeStopLimit, comment)
+	newOrder, err := b.createStopOrder(stopPrice, price, nAmount, OrderSell, OrderTypeStopLimit, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // StopLoseSell when marketPrice>=stopPrice, create buy order with marketPrice and amount
-func (b *Bitmex) StopLoseBuyMarket(price, amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) StopLoseBuyMarket(price, amount float64) (ret *Order, err error) {
 	comment := "stop market buy with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err = b.createStopOrder(price, 0, nAmount, OrderBuy, OrderTypeStop, comment)
+	newOrder, err := b.createStopOrder(price, 0, nAmount, OrderBuy, OrderTypeStop, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 
 // StopLoseSell when marketPrice<=stopPrice, create buy order with marketPrice and amount
-func (b *Bitmex) StopLoseSellMarket(price, amount float64) (newOrder *models.Order, err error) {
+func (b *Bitmex) StopLoseSellMarket(price, amount float64) (ret *Order, err error) {
 	comment := "stop market buy with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err = b.createStopOrder(price, 0, nAmount, OrderSell, OrderTypeStop, comment)
+	newOrder, err := b.createStopOrder(price, 0, nAmount, OrderSell, OrderTypeStop, comment)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
 	return
 }
 

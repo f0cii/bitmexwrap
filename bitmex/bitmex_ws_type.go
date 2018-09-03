@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/SuperGod/coinex"
 	"github.com/SuperGod/coinex/bitmex/models"
+	. "github.com/SuperGod/trademodel"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/gjson"
 )
@@ -212,6 +212,22 @@ func (o OrderBookMap) GetDepth() (depth Depth) {
 
 func transTrade(v *models.Trade) (t Trade) {
 	// timestamp: 2018-08-01T05:58:00.737Z
-	t = Trade{ID: v.TrdMatchID, Price: v.Price, Size: float64(v.Size), Side: v.Side, TickDirection: v.TickDirection, Time: time.Time(*v.Timestamp)}
+	t = Trade{ID: v.TrdMatchID, Price: v.Price,
+		Amount: float64(v.Size), Side: v.Side,
+		Remark: v.TickDirection,
+		Time:   time.Time(*v.Timestamp)}
 	return
+}
+
+func transCandle(klines []*models.TradeBin, candles *[]*Candle) {
+	for _, v := range klines {
+		*candles = append(*candles, &Candle{Start: time.Time(*v.Timestamp).Unix(),
+			Open:   v.Open,
+			High:   v.High,
+			Low:    v.Low,
+			Close:  v.Close,
+			Volume: float64(v.Volume),
+			VWP:    v.Vwap,
+			Trades: v.Trades})
+	}
 }

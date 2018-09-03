@@ -3,6 +3,8 @@ package bitmex
 import (
 	"testing"
 
+	. "github.com/SuperGod/trademodel"
+
 	. "github.com/SuperGod/coinex"
 	log "github.com/sirupsen/logrus"
 )

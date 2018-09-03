@@ -1,12 +1,13 @@
 package bitmex
 
 import (
-	"context"
 	"fmt"
 	"net/url"
 	"time"
 
 	. "github.com/SuperGod/coinex"
+	. "github.com/SuperGod/trademodel"
+
 	apiclient "github.com/SuperGod/coinex/bitmex/client"
 	"github.com/SuperGod/coinex/bitmex/client/instrument"
 	"github.com/SuperGod/coinex/bitmex/client/order_book"
@@ -70,11 +71,6 @@ func NewBitmexFromCfg(key, secret, baseURL string, cfg *apiclient.TransportConfi
 
 func (b *Bitmex) SetDebug(bDebug bool) {
 	b.trans.SetDebug(bDebug)
-}
-
-func (b *Bitmex) context() (ctx context.Context) {
-	ctx = context.Background()
-	return
 }
 
 // SetMaxLocalDepth set max local depth cache len
@@ -251,10 +247,8 @@ func (b *Bitmex) Ticker() (ticker Ticker, err error) {
 
 // Ticker
 func (b *Bitmex) GetTicker() (ticker Ticker, err error) {
-	// symbol := optional.NewString(b.symbol)
 	reverse := true
 	nCount := int32(10)
-	// oCount := optional.NewFloat32(float32(nCount))
 	ret2, err := b.api.Trade.TradeGet(&trade.TradeGetParams{Count: &nCount, Symbol: &b.symbol, Reverse: &reverse})
 	if err != nil {
 		return
@@ -302,13 +296,15 @@ func (b *Bitmex) GetLever() (lever float64, err error) {
 	return
 }
 
-func (b *Bitmex) Kline(start, end time.Time, bSize string) (klines []*models.TradeBin, err error) {
+// Kline Timestamp of kline is the end of the binSize
+func (b *Bitmex) Kline(start, end time.Time, bSize string) (klines []*Candle, err error) {
 	startTime := strfmt.DateTime(start)
 	endTime := strfmt.DateTime(end)
 	var nStart int32
 	var nCount int32
 	var nRet int32
-	params := &trade.TradeGetBucketedParams{BinSize: &bSize, StartTime: &startTime, EndTime: &endTime}
+	nCount = 500
+	params := &trade.TradeGetBucketedParams{Symbol: &b.symbol, BinSize: &bSize, StartTime: &startTime, EndTime: &endTime}
 	for {
 		params.Start = &nStart
 		params.Count = &nCount
@@ -316,7 +312,8 @@ func (b *Bitmex) Kline(start, end time.Time, bSize string) (klines []*models.Tra
 		if err != nil {
 			break
 		}
-		klines = append(klines, klineInfo.Payload...)
+		transCandle(klineInfo.Payload, &klines)
+
 		nRet = int32(len(klineInfo.Payload))
 		nStart += nRet
 		if nRet < nCount {
@@ -327,14 +324,14 @@ func (b *Bitmex) Kline(start, end time.Time, bSize string) (klines []*models.Tra
 }
 
 // KlineRecent get recent nCount klines
-func (b *Bitmex) KlineRecent(nCount int32, bSize string) (klines []*models.TradeBin, err error) {
+func (b *Bitmex) KlineRecent(nCount int32, bSize string) (klines []*Candle, err error) {
 	bReverse := true
-	params := &trade.TradeGetBucketedParams{BinSize: &bSize, Count: &nCount, Reverse: &bReverse}
+	params := &trade.TradeGetBucketedParams{BinSize: &bSize, Count: &nCount, Reverse: &bReverse, Symbol: &b.symbol}
 	klineInfo, err := b.api.Trade.TradeGetBucketed(params)
 	if err != nil {
 		return
 	}
-	klines = klineInfo.Payload
+	transCandle(klineInfo.Payload, &klines)
 	return
 }
 

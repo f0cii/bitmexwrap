@@ -73,7 +73,7 @@ func (t *Transport) signature(req runtime.ClientRequest, operation *runtime.Clie
 		log.Info("unsupport method:", method)
 	}
 	content := method + path + expires + data
-	fmt.Println("content:", content)
+	// fmt.Println("content:", content)
 	hmac := GetHMAC(HashSHA256, []byte(content), []byte(t.Secret))
 	sign = hex.EncodeToString(hmac)
 	return

@@ -1,6 +1,10 @@
 package coinex
 
-import "time"
+import (
+	"time"
+
+	. "github.com/SuperGod/trademodel"
+)
 
 const (
 	Long  = 1
@@ -29,15 +33,22 @@ type FuturesExchange interface {
 	Positions() ([]Position, error)
 	ContractBalances() (map[Contract]Balance, error)
 
-	Depth(int) (Depth, error)
+	Depth(int) (Orderbook, error)
 	Ticker() (Ticker, error)
 
 	SetSymbol(symbol string) error
 	SetContract(contract string) error
 	SetLever(lever int) error
 
+	KlineRecent(count int32, binSize string) (klines []*Candle, err error)
+	Kline(start, end time.Time, binSize string) (klines []*Candle, err error)
+
 	OpenLong(price float64, amount float64) error
 	CloseLong(price float64, amount float64) error
 	OpenShort(price float64, amount float64) error
 	CloseShort(price float64, amount float64) error
+	OpenLongMarket(amount float64) error
+	CloseLongMarket(amount float64) error
+	OpenShortMarket(amount float64) error
+	CloseShortMarket(amount float64) error
 }

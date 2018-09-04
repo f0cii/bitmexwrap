@@ -3,20 +3,10 @@ package bitmex
 import (
 	"log"
 	"testing"
-
-	. "github.com/SuperGod/coinex"
 )
 
 func GetClient() (bm *Bitmex) {
-	configs, err := LoadConfigs()
-	if err != nil {
-		panic(err.Error())
-	}
-	key, secret := configs.Get("bitmextest")
-	bm = NewBitmexTest(key, secret)
-	bm.SetDebug(true)
-	bm.SetProxy(configs.Proxy)
-	return bm
+	return GetClientByName("bitmextest", true)
 }
 
 func GetHighLowPrice(t *testing.T, api *Bitmex) (high, low float64) {

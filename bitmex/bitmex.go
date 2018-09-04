@@ -176,7 +176,7 @@ func (b *Bitmex) User() (user *models.User, err error) {
 
 // Depth get depth
 // if d is 0, get all depth
-func (b *Bitmex) Depth(d int) (depth Depth, err error) {
+func (b *Bitmex) Depth(d int) (depth Orderbook, err error) {
 	if !b.enableWS {
 		return b.GetDepth(d)
 	}
@@ -196,7 +196,7 @@ func (b *Bitmex) Depth(d int) (depth Depth, err error) {
 }
 
 // GetDepth get depth use RESTful API
-func (b *Bitmex) GetDepth(d int) (depth Depth, err error) {
+func (b *Bitmex) GetDepth(d int) (depth Orderbook, err error) {
 	nDepth := int32(d)
 	ret, err := b.api.OrderBook.OrderBookGetL2(&order_book.OrderBookGetL2Params{Depth: &nDepth, Symbol: b.symbol})
 	if err != nil {
@@ -297,29 +297,33 @@ func (b *Bitmex) GetLever() (lever float64, err error) {
 }
 
 // Kline Timestamp of kline is the end of the binSize
-func (b *Bitmex) Kline(start, end time.Time, bSize string) (klines []*Candle, err error) {
+func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string) (klines []*Candle, err error) {
 	startTime := strfmt.DateTime(start)
 	endTime := strfmt.DateTime(end)
 	var nStart int32
 	var nCount int32
-	var nRet int32
+	// var nRet int32
 	nCount = 500
-	params := &trade.TradeGetBucketedParams{Symbol: &b.symbol, BinSize: &bSize, StartTime: &startTime, EndTime: &endTime}
-	for {
-		params.Start = &nStart
-		params.Count = &nCount
-		klineInfo, err := b.api.Trade.TradeGetBucketed(params)
-		if err != nil {
-			break
-		}
-		transCandle(klineInfo.Payload, &klines)
-
-		nRet = int32(len(klineInfo.Payload))
-		nStart += nRet
-		if nRet < nCount {
-			break
-		}
+	if int32(nLimit) < nCount {
+		nCount = int32(nLimit)
 	}
+	params := &trade.TradeGetBucketedParams{Symbol: &b.symbol, BinSize: &bSize, StartTime: &startTime, EndTime: &endTime}
+	// for {
+	params.Start = &nStart
+	params.Count = &nCount
+	klineInfo, err := b.api.Trade.TradeGetBucketed(params)
+	if err != nil {
+		// break
+		return
+	}
+	transCandle(klineInfo.Payload, &klines)
+
+	// nRet = int32(len(klineInfo.Payload))
+	// nStart += nRet
+	// if nRet < nCount {
+	// 	break
+	// }
+	// }
 	return
 }
 
@@ -378,5 +382,26 @@ func (b *Bitmex) TradesChan(start, end time.Time) (trades chan []interface{}, er
 	}
 	d := NewDataDownload(strfmt.DateTime(start), strfmt.DateTime(end), paramFunc, downFunc, 500, 10)
 	trades = d.Start()
+	return
+}
+
+func (b *Bitmex) KlineChan(start, end time.Time, bSize string) (klines chan []interface{}, err error) {
+	paramFunc := func() DownParam {
+		params := &trade.TradeGetBucketedParams{BinSize: &bSize, Symbol: &b.symbol}
+		return params
+	}
+	downFunc := func(param DownParam) (data []interface{}, err1 error) {
+		params := param.(*trade.TradeGetBucketedParams)
+		klineInfo, err1 := b.api.Trade.TradeGetBucketed(params)
+		if err1 != nil {
+			return
+		}
+		for _, v := range klineInfo.Payload {
+			data = append(data, transOneCandle(v))
+		}
+		return
+	}
+	d := NewDataDownload(strfmt.DateTime(start), strfmt.DateTime(end), paramFunc, downFunc, 500, 10)
+	klines = d.Start()
 	return
 }

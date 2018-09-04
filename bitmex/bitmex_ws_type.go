@@ -231,3 +231,15 @@ func transCandle(klines []*models.TradeBin, candles *[]*Candle) {
 			Trades: v.Trades})
 	}
 }
+
+func transOneCandle(v *models.TradeBin) (candle *Candle) {
+	candle = &Candle{Start: time.Time(*v.Timestamp).Unix(),
+		Open:   v.Open,
+		High:   v.High,
+		Low:    v.Low,
+		Close:  v.Close,
+		Volume: float64(v.Volume),
+		VWP:    v.Vwap,
+		Trades: v.Trades}
+	return
+}

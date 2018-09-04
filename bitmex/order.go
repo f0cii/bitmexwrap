@@ -29,6 +29,18 @@ func transOrder(o *models.Order) (ret *Order) {
 	return
 }
 
+// Buy open long with price
+func (b *Bitmex) Buy(price float64, amount float64) (ret *Order, err error) {
+	ret, err = b.OpenLong(price, amount)
+	return
+}
+
+// Buy open long with price
+func (b *Bitmex) Sell(price float64, amount float64) (ret *Order, err error) {
+	ret, err = b.OpenShort(price, amount)
+	return
+}
+
 // OpenLong open long with price
 func (b *Bitmex) OpenLong(price float64, amount float64) (ret *Order, err error) {
 	comment := "open long with bitmex api"

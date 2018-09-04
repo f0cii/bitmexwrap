@@ -28,7 +28,26 @@ type Position struct {
 	ProfitRatio float64  // 盈利比例,正数表示盈利，负数表示亏岁
 }
 
-type FuturesExchange interface {
+type BaseExchanger interface {
+	Buy(price float64, amount float64) (*Order, error)
+	Sell(price float64, amount float64) (*Order, error)
+}
+
+type FuturesBaseExchanger interface {
+	BaseExchanger
+	OpenLong(price float64, amount float64) (*Order, error)
+	CloseLong(price float64, amount float64) (*Order, error)
+	OpenShort(price float64, amount float64) (*Order, error)
+	CloseShort(price float64, amount float64) (*Order, error)
+	OpenLongMarket(amount float64) (*Order, error)
+	CloseLongMarket(amount float64) (*Order, error)
+	OpenShortMarket(amount float64) (*Order, error)
+	CloseShortMarket(amount float64) (*Order, error)
+}
+
+type FuturesExchanger interface {
+	FuturesBaseExchanger
+
 	Contracts() ([]Contract, error)
 	Positions() ([]Position, error)
 	ContractBalances() (map[Contract]Balance, error)
@@ -38,17 +57,9 @@ type FuturesExchange interface {
 
 	SetSymbol(symbol string) error
 	SetContract(contract string) error
-	SetLever(lever int) error
+	SetLever(lever float64) error
 
 	KlineRecent(count int32, binSize string) (klines []*Candle, err error)
-	Kline(start, end time.Time, binSize string) (klines []*Candle, err error)
-
-	OpenLong(price float64, amount float64) error
-	CloseLong(price float64, amount float64) error
-	OpenShort(price float64, amount float64) error
-	CloseShort(price float64, amount float64) error
-	OpenLongMarket(amount float64) error
-	CloseLongMarket(amount float64) error
-	OpenShortMarket(amount float64) error
-	CloseShortMarket(amount float64) error
+	Kline(start, end time.Time, nLimit int, binSize string) (klines []*Candle, err error)
+	KlineChan(start, end time.Time, bSize string) (klines chan []interface{}, err error)
 }

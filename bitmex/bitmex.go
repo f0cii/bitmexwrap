@@ -130,27 +130,22 @@ func (b *Bitmex) Contracts() (contracts []Contract, err error) {
 
 // Positions get current positions
 func (b *Bitmex) Positions() (positions []Position, err error) {
+	if b.enableWS {
+		positions = b.wsAPI.GetLastPos()
+		return
+	}
 	pos, err := b.api.Position.PositionGet(&position.PositionGetParams{}, nil)
 	if err != nil {
 		return
 	}
-	var orderType int
+	var position *Position
 	for _, v := range pos.Payload {
-		if v.CurrentQty > 0 {
-			orderType = Long
-		} else {
-			orderType = Short
-		}
-		if v.CurrentQty == 0 {
+		position = transPosition(v)
+		if pos == nil {
 			continue
 		}
 		// UnrealisedRoePcnt 是按标记价格计算的盈亏
-		positions = append(positions, Position{Info: Contract{Symbol: *v.Symbol, Name: *v.Symbol},
-			Type:        orderType,
-			Hold:        float64(v.CurrentQty),
-			ProfitRatio: float64(v.UnrealisedRoePcnt),
-		},
-		)
+		positions = append(positions, *position)
 	}
 	return
 }

@@ -1,6 +1,8 @@
 package bitmex
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/SuperGod/coinex/bitmex/client/order"
@@ -16,6 +18,10 @@ const (
 	OrderTypeMarket    = "Market"
 	OrderTypeStop      = "Stop"      // stop lose with market price, must set stopPx
 	OrderTypeStopLimit = "StopLimit" // stop lose with limit price, must set stopPx
+)
+
+var (
+	NoOrderFound = errors.New("no such order")
 )
 
 func transOrder(o *models.Order) (ret *Order) {
@@ -59,7 +65,7 @@ func (b *Bitmex) OpenLong(price float64, amount float64) (ret *Order, err error)
 func (b *Bitmex) CloseLong(price float64, amount float64) (ret *Order, err error) {
 	comment := "close long with bitmex api"
 	nAmount := 0 - int32(amount)
-	newOrder, err := b.createOrder(price, nAmount, OrderSell, OrderTypeLimit, comment)
+	newOrder, err := b.closeOrder(price, nAmount, OrderSell, OrderTypeLimit, comment)
 	if err != nil {
 		return
 	}
@@ -83,7 +89,7 @@ func (b *Bitmex) OpenShort(price float64, amount float64) (ret *Order, err error
 func (b *Bitmex) CloseShort(price float64, amount float64) (ret *Order, err error) {
 	comment := "close short with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err := b.createOrder(price, nAmount, OrderBuy, OrderTypeLimit, comment)
+	newOrder, err := b.closeOrder(price, nAmount, OrderBuy, OrderTypeLimit, comment)
 	if err != nil {
 		return
 	}
@@ -107,7 +113,7 @@ func (b *Bitmex) OpenLongMarket(amount float64) (ret *Order, err error) {
 func (b *Bitmex) CloseLongMarket(amount float64) (ret *Order, err error) {
 	comment := "close market long with bitmex api"
 	nAmount := 0 - int32(amount)
-	newOrder, err := b.createOrder(0, nAmount, OrderSell, OrderTypeMarket, comment)
+	newOrder, err := b.closeOrder(0, nAmount, OrderSell, OrderTypeMarket, comment)
 	if err != nil {
 		return
 	}
@@ -131,7 +137,7 @@ func (b *Bitmex) OpenShortMarket(amount float64) (ret *Order, err error) {
 func (b *Bitmex) CloseShortMarket(amount float64) (ret *Order, err error) {
 	comment := "close market short with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err := b.createOrder(0, nAmount, OrderBuy, OrderTypeMarket, comment)
+	newOrder, err := b.closeOrder(0, nAmount, OrderBuy, OrderTypeMarket, comment)
 	if err != nil {
 		return
 	}
@@ -210,6 +216,27 @@ func (b *Bitmex) createStopOrder(stopPrice, price float64, amount int32, side, o
 	return
 }
 
+func (b *Bitmex) closeOrder(price float64, amount int32, side, orderType, comment string) (newOrder *models.Order, err error) {
+	execInst := "Close"
+	params := order.OrderNewParams{
+		Side:     &side,
+		Symbol:   b.symbol,
+		Text:     &comment,
+		OrderQty: &amount,
+		OrdType:  &orderType,
+		ExecInst: &execInst,
+	}
+	if price != 0 {
+		params.Price = &price
+	}
+	orderInfo, err := b.api.Order.OrderNew(&params, nil)
+	if err != nil {
+		return
+	}
+	newOrder = orderInfo.Payload
+	return
+}
+
 func (b *Bitmex) createOrder(price float64, amount int32, side, orderType, comment string) (newOrder *models.Order, err error) {
 	params := order.OrderNewParams{
 		Side:     &side,
@@ -230,7 +257,7 @@ func (b *Bitmex) createOrder(price float64, amount int32, side, orderType, comme
 }
 
 // CancelOrder with oid
-func (b *Bitmex) CancelOrder(oid string) (orders []*models.Order, err error) {
+func (b *Bitmex) CancelOrder(oid string) (newOrder *Order, err error) {
 	comment := "cancle order with bitmex api"
 	params := order.OrderCancelParams{
 		OrderID: &oid,
@@ -240,12 +267,16 @@ func (b *Bitmex) CancelOrder(oid string) (orders []*models.Order, err error) {
 	if err != nil {
 		return
 	}
-	orders = orderInfo.Payload
+	if len(orderInfo.Payload) == 0 {
+		err = NoOrderFound
+		return
+	}
+	newOrder = transOrder(orderInfo.Payload[0])
 	return
 }
 
 // CancelAllOrders cancel all not filled orders
-func (b *Bitmex) CancelAllOrders() (orders []*models.Order, err error) {
+func (b *Bitmex) CancelAllOrders() (orders []*Order, err error) {
 	comment := "cancle all order with bitmex api"
 	params := order.OrderCancelAllParams{
 		Symbol: &b.symbol,
@@ -255,12 +286,14 @@ func (b *Bitmex) CancelAllOrders() (orders []*models.Order, err error) {
 	if err != nil {
 		return
 	}
-	orders = orderInfo.Payload
+	for _, v := range orderInfo.Payload {
+		orders = append(orders, transOrder(v))
+	}
 	return
 }
 
 // Orders get all active orders
-func (b *Bitmex) Orders() (orders []*models.Order, err error) {
+func (b *Bitmex) Orders() (orders []*Order, err error) {
 	filters := `{"ordStatus":"New"}`
 	params := order.OrderGetOrdersParams{
 		Symbol: &b.symbol,
@@ -270,6 +303,27 @@ func (b *Bitmex) Orders() (orders []*models.Order, err error) {
 	if err != nil {
 		return
 	}
-	orders = orderInfo.Payload
+	for _, v := range orderInfo.Payload {
+		orders = append(orders, transOrder(v))
+	}
+	return
+}
+
+// Orders get all active orders
+func (b *Bitmex) Order(oid string) (newOrder *Order, err error) {
+	filters := fmt.Sprintf(`{"orderID":"%s"}`, oid)
+	params := order.OrderGetOrdersParams{
+		Symbol: &b.symbol,
+		Filter: &filters,
+	}
+	orderInfo, err := b.api.Order.OrderGetOrders(&params, nil)
+	if err != nil {
+		return
+	}
+	if len(orderInfo.Payload) == 0 {
+		err = NoOrderFound
+		return
+	}
+	newOrder = transOrder(orderInfo.Payload[0])
 	return
 }

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	. "github.com/SuperGod/coinex"
+
 	"github.com/SuperGod/coinex/bitmex/models"
 	. "github.com/SuperGod/trademodel"
 	log "github.com/sirupsen/logrus"
@@ -163,6 +165,13 @@ func (r *Resp) Decode(buf []byte) (err error) {
 				return
 			}
 			r.data = announs
+		case bitmexWSPosition:
+			var pos []*models.Position
+			err = json.Unmarshal([]byte(raw), &pos)
+			if err != nil {
+				return
+			}
+			r.data = pos
 		default:
 			log.Debug("unsupport table:", r.Table)
 		}
@@ -184,6 +193,14 @@ func (r *Resp) GetOrderbookL2() (orderbook OrderBookData) {
 		return
 	}
 	orderbook, _ = r.data.(OrderBookData)
+	return
+}
+
+func (r *Resp) GetPostions() (positions []*models.Position) {
+	if r.Table != bitmexWSPosition || r.data == nil {
+		return
+	}
+	positions, _ = r.data.([]*models.Position)
 	return
 }
 
@@ -241,5 +258,53 @@ func transOneCandle(v *models.TradeBin) (candle *Candle) {
 		Volume: float64(v.Volume),
 		VWP:    v.Vwap,
 		Trades: v.Trades}
+	return
+}
+
+func transPosition(v *models.Position) (pos *Position) {
+	var orderType int
+	if v.CurrentQty > 0 {
+		orderType = Long
+	} else {
+		orderType = Short
+	}
+	if v.CurrentQty == 0 {
+		return
+	}
+	pos = &Position{Info: Contract{Symbol: *v.Symbol, Name: *v.Symbol},
+		Type:        orderType,
+		Hold:        float64(v.CurrentQty),
+		ProfitRatio: float64(v.UnrealisedRoePcnt),
+	}
+	return
+}
+
+type PositionMap map[string]*models.Position
+
+func NewPositionMap() (o PositionMap) {
+	o = make(PositionMap)
+	return
+}
+
+func (o PositionMap) Update(pos []*models.Position) {
+	for _, v := range pos {
+		if v.CurrentQty == 0 {
+			delete(o, *v.Symbol)
+		} else {
+			o[*v.Symbol] = v
+		}
+	}
+	return
+}
+
+func (o PositionMap) Pos() (poses []Position) {
+	var pos *Position
+	for _, v := range o {
+		pos = transPosition(v)
+		if pos == nil {
+			continue
+		}
+		poses = append(poses, *pos)
+	}
 	return
 }

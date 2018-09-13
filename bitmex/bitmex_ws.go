@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	. "github.com/SuperGod/coinex"
+
 	. "github.com/SuperGod/trademodel"
 
 	"github.com/SuperGod/coinex/bitmex/models"
@@ -53,6 +55,7 @@ type BitmexWS struct {
 	partialLoadedOrderbook bool
 	orderBook              OrderBookMap
 	trades                 []*models.Trade
+	pos                    PositionMap
 
 	pongChan chan int
 	shutdown *Shutdown
@@ -62,6 +65,9 @@ type BitmexWS struct {
 
 	lastTrade      Trade
 	lastTradeMutex sync.RWMutex
+
+	lastPosition      []Position
+	lastPositionMutex sync.RWMutex
 
 	tradeChan chan Trade
 	depthChan chan Depth
@@ -86,6 +92,7 @@ func NewBitmexWSWithURL(symbol, key, secret, proxy, wsURL string) (bw *BitmexWS)
 	bw.secret = secret
 	bw.proxy = proxy
 	bw.orderBook = NewOrderBookMap()
+	bw.pos = NewPositionMap()
 	bw.pongChan = make(chan int, 1)
 	bw.shutdown = NewRoutineManagement()
 	bw.timer = time.NewTimer(WSTimeOut)
@@ -125,6 +132,20 @@ func (bw *BitmexWS) GetLastTrade() (trade Trade) {
 	bw.lastTradeMutex.RLock()
 	trade = bw.lastTrade
 	bw.lastTradeMutex.RUnlock()
+	return
+}
+
+func (bw *BitmexWS) SetLastPos(pos []Position) {
+	bw.lastPositionMutex.Lock()
+	bw.lastPosition = pos
+	bw.lastPositionMutex.Unlock()
+}
+
+func (bw *BitmexWS) GetLastPos() (poses []Position) {
+	bw.lastPositionMutex.RLock()
+	poses = bw.lastPosition
+	bw.lastPositionMutex.RUnlock()
+	// log.Debug("processPosition", poses)
 	return
 }
 
@@ -199,13 +220,14 @@ func (bw *BitmexWS) connectionHandler() {
 				bw.reconnect()
 				return
 			}
+		OUT:
 			for {
 				select {
 				case <-bw.pongChan:
 					log.Debug("Bitmex websocket: PONG chan received")
 					// bw.timer.Reset(WSTimeOut)
 					time.Sleep(time.Microsecond)
-					break
+					break OUT
 				case <-timeout:
 					log.Println("Bitmex websocket: Connection timed out - Closing connection....")
 					bw.wsConn.Close()
@@ -303,7 +325,6 @@ func (bw *BitmexWS) handleMessage() {
 			continue
 		}
 		bw.timer.Reset(WSTimeOut)
-
 		var ret Resp
 		err = ret.Decode(data)
 		if err != nil {
@@ -326,6 +347,9 @@ func (bw *BitmexWS) handleMessage() {
 				err = bw.processTrade(&ret)
 			case bitmexWSAnnouncement:
 				// err = bw.processTrade(&ret)
+			case bitmexWSPosition:
+				// log.Debug("processPosition", msg)
+				err = bw.processPosition(&ret)
 			default:
 				log.Println(ret.Table, msg)
 			}
@@ -424,5 +448,19 @@ func (bw *BitmexWS) processTrade(msg *Resp) (err error) {
 			bw.tradeChan <- transTrade(v)
 		}
 	}
+	return
+}
+
+func (bw *BitmexWS) processPosition(msg *Resp) (err error) {
+	datas := msg.GetPostions()
+	switch msg.Action {
+	case bitmexActionInitialData, bitmexActionUpdateData, bitmexActionInsertData:
+		bw.pos.Update(datas)
+	// case bitmexActionDeleteData:
+	default:
+		err = fmt.Errorf("unsupport action:%s", msg.Action)
+		return
+	}
+	bw.SetLastPos(bw.pos.Pos())
 	return
 }

@@ -119,7 +119,7 @@ func (bw *BitmexWS) GetLastDepth() (depth Depth) {
 	return
 }
 
-// SetLastDepth set depth data,call by websocket message handler
+// SetLastTrade set depth data,call by websocket message handler
 func (bw *BitmexWS) SetLastTrade(trade Trade) {
 	bw.lastTradeMutex.Lock()
 	bw.lastTrade = trade
@@ -176,6 +176,8 @@ func (bw *BitmexWS) Connect() (err error) {
 		return err
 	}
 
+	bw.partialLoadedOrderbook = false
+	bw.partialLoadedTrades = false
 	var welcome Welcome
 	err = json.Unmarshal(p, &welcome)
 	if err != nil {
@@ -377,7 +379,8 @@ func (bw *BitmexWS) processOrderbook(msg *Resp) (err error) {
 			for _, elem := range datas {
 				v, ok = bw.orderBook[elem.Key()]
 				if ok {
-					v.Price = elem.Price
+					// price is same while id is same
+					// v.Price = elem.Price
 					v.Side = elem.Side
 					v.Size = elem.Size
 					updated--
@@ -408,9 +411,10 @@ func (bw *BitmexWS) processOrderbook(msg *Resp) (err error) {
 	if updated != 0 {
 		return errors.New("Bitmex websocket error: Elements not updated correctly")
 	}
-
+	depth := bw.orderBook.GetDepth()
+	// log.Debug("depth:", depth)
+	bw.SetLastDepth(depth)
 	if bw.depthChan != nil {
-		depth := bw.orderBook.GetDepth()
 		bw.depthChan <- depth
 	}
 	return

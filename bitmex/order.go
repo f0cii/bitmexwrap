@@ -32,6 +32,9 @@ func transOrder(o *models.Order) (ret *Order) {
 		Status:   o.OrdStatus,
 		Side:     o.Side,
 		Time:     time.Time(o.Timestamp)}
+	if ret.Price == 0 {
+		ret.Price = o.Price
+	}
 	return
 }
 

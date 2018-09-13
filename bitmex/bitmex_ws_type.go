@@ -3,6 +3,8 @@ package bitmex
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strconv"
 	"time"
 
 	. "github.com/SuperGod/coinex"
@@ -95,17 +97,18 @@ type MainResponse struct {
 
 func (o *OrderBookL2) Key() string {
 	// return fmt.Sprintf("%s-%s-%d", o.Symbol, o.Side, o.ID)
-	return string(o.ID)
+	return strconv.FormatInt(o.ID, 10)
 }
 
 type OrderBookData []*OrderBookL2
 
-func (od *OrderBookData) GetMap() (ret map[string]*OrderBookL2) {
+func (od *OrderBookData) GetMap() (ret OrderBookMap) {
+	ret = NewOrderBookMap()
 	od.GetDataToMap(ret)
 	return
 }
 
-func (od *OrderBookData) GetDataToMap(ret map[string]*OrderBookL2) {
+func (od *OrderBookData) GetDataToMap(ret OrderBookMap) {
 	for _, v := range *od {
 		ret[v.Key()] = v
 	}
@@ -224,6 +227,21 @@ func NewOrderBookMap() (o OrderBookMap) {
 }
 
 func (o OrderBookMap) GetDepth() (depth Depth) {
+	for _, v := range o {
+		if v.Side == "Buy" {
+			depth.Buys = append(depth.Buys, DepthInfo{Price: v.Price, Amount: float64(v.Size)})
+		} else {
+			depth.Sells = append(depth.Sells, DepthInfo{Price: v.Price, Amount: float64(v.Size)})
+		}
+	}
+
+	sort.Slice(depth.Buys, func(i, j int) bool {
+		return depth.Buys[i].Price > depth.Buys[j].Price
+	})
+	sort.Slice(depth.Sells, func(i, j int) bool {
+		return depth.Sells[i].Price < depth.Sells[j].Price
+	})
+	depth.UpdateTime = time.Now()
 	return
 }
 
@@ -275,6 +293,7 @@ func transPosition(v *models.Position) (pos *Position) {
 		Type:        orderType,
 		Hold:        float64(v.CurrentQty),
 		ProfitRatio: float64(v.UnrealisedRoePcnt),
+		Price:       v.AvgEntryPrice,
 	}
 	return
 }
@@ -287,11 +306,24 @@ func NewPositionMap() (o PositionMap) {
 }
 
 func (o PositionMap) Update(pos []*models.Position) {
+	var old *models.Position
+	var ok bool
 	for _, v := range pos {
 		if v.CurrentQty == 0 {
 			delete(o, *v.Symbol)
 		} else {
-			o[*v.Symbol] = v
+			old, ok = o[*v.Symbol]
+			if ok {
+				if v.AvgEntryPrice != 0 {
+					old.AvgEntryPrice = v.AvgEntryPrice
+				}
+				v.CurrentQty = v.CurrentQty
+				old.LastPrice = v.LastPrice
+				old.MarkPrice = v.MarkPrice
+				old.SimpleQty = v.SimpleQty
+			} else {
+				o[*v.Symbol] = v
+			}
 		}
 	}
 	return

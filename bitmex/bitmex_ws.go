@@ -77,6 +77,7 @@ type BitmexWS struct {
 	orderBook              OrderBookMap
 	trades                 []*models.Trade
 	pos                    PositionMap
+	orders                 OrderMap
 
 	pongChan chan int
 	shutdown *Shutdown
@@ -89,6 +90,9 @@ type BitmexWS struct {
 
 	lastPosition      []Position
 	lastPositionMutex sync.RWMutex
+
+	lastOrder      []Order
+	lastOrderMutex sync.RWMutex
 
 	tradeChan chan Trade
 	depthChan chan Depth
@@ -117,12 +121,16 @@ func NewBitmexWSWithURL(symbol, key, secret, proxy, wsURL string) (bw *BitmexWS)
 	bw.proxy = proxy
 	bw.orderBook = NewOrderBookMap()
 	bw.pos = NewPositionMap()
+	bw.orders = NewOrderMap()
 	bw.pongChan = make(chan int, 1)
 	bw.shutdown = NewRoutineManagement()
 	bw.timer = time.NewTimer(WSTimeOut)
-	bw.subcribeTypes = []SubscribeInfo{SubscribeInfo{Op: BitmexWSOrderbookL2, Param: bw.symbol},
+	bw.subcribeTypes = []SubscribeInfo{
+		SubscribeInfo{Op: BitmexWSOrderbookL2, Param: bw.symbol},
 		SubscribeInfo{Op: BitmexWSTrade, Param: bw.symbol},
-		SubscribeInfo{Op: BitmexWSPosition, Param: bw.symbol}}
+		SubscribeInfo{Op: BitmexWSPosition, Param: bw.symbol},
+		SubscribeInfo{Op: BitmexWSOrder, Param: bw.symbol},
+	}
 	bw.klineChan = make(map[string]chan *Candle)
 	return
 }
@@ -193,6 +201,19 @@ func (bw *BitmexWS) GetLastPos() (poses []Position) {
 	poses = bw.lastPosition
 	bw.lastPositionMutex.RUnlock()
 	// log.Debug("processPosition", poses)
+	return
+}
+
+func (bw *BitmexWS) SetLastOrders(orders []Order) {
+	bw.lastOrderMutex.Lock()
+	bw.lastOrder = orders
+	bw.lastOrderMutex.Unlock()
+}
+
+func (bw *BitmexWS) GetLastOrders() (orders []Order) {
+	bw.lastOrderMutex.RLock()
+	orders = bw.lastOrder
+	bw.lastOrderMutex.RUnlock()
 	return
 }
 
@@ -396,6 +417,8 @@ func (bw *BitmexWS) handleMessage() {
 			case BitmexWSPosition:
 				// log.Debug("processPosition", msg)
 				err = bw.processPosition(&ret)
+			case BitmexWSOrder:
+				err = bw.processOrder(&ret)
 			case BitmexWSTradeBin1m:
 				err = bw.processTradeBin("1m", &ret)
 			case BitmexWSTradeBin5m:
@@ -518,6 +541,21 @@ func (bw *BitmexWS) processPosition(msg *Resp) (err error) {
 		return
 	}
 	bw.SetLastPos(bw.pos.Pos())
+	return
+}
+
+func (bw *BitmexWS) processOrder(msg *Resp) (err error) {
+	datas := msg.GetOrders()
+	switch msg.Action {
+	case bitmexActionInitialData, bitmexActionUpdateData, bitmexActionInsertData:
+		bw.orders.Update(datas, false)
+	case bitmexActionDeleteData:
+		bw.orders.Update(datas, true)
+	default:
+		err = fmt.Errorf("unsupport action:%s", msg.Action)
+		return
+	}
+	bw.SetLastOrders(bw.orders.Orders())
 	return
 }
 

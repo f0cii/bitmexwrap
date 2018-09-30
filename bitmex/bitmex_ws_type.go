@@ -175,6 +175,13 @@ func (r *Resp) Decode(buf []byte) (err error) {
 				return
 			}
 			r.data = pos
+		case BitmexWSOrder:
+			var orders []*models.Order
+			err = json.Unmarshal([]byte(raw), &orders)
+			if err != nil {
+				return
+			}
+			r.data = orders
 		case BitmexWSTradeBin1m, BitmexWSTradeBin5m, BitmexWSTradeBin1h, BitmexWSTradeBin1d:
 			var klines []*models.TradeBin
 			err = json.Unmarshal([]byte(raw), &klines)
@@ -211,6 +218,14 @@ func (r *Resp) GetPostions() (positions []*models.Position) {
 		return
 	}
 	positions, _ = r.data.([]*models.Position)
+	return
+}
+
+func (r *Resp) GetOrders() (orders []*models.Order) {
+	if r.Table != BitmexWSOrder || r.data == nil {
+		return
+	}
+	orders, _ = r.data.([]*models.Order)
 	return
 }
 
@@ -364,6 +379,44 @@ func (o PositionMap) Pos() (poses []Position) {
 			continue
 		}
 		poses = append(poses, *pos)
+	}
+	return
+}
+
+type OrderMap map[string]*models.Order
+
+func NewOrderMap() (o OrderMap) {
+	o = make(OrderMap)
+	return
+}
+
+func (o OrderMap) Update(orders []*models.Order, isDelete bool) {
+	var old *models.Order
+	var ok bool
+	for _, v := range orders {
+		if isDelete {
+			delete(o, v.Symbol)
+		} else {
+			old, ok = o[*v.OrderID]
+			if ok {
+				old.Account = v.Account
+				old.Price = v.Price
+			} else {
+				o[*v.OrderID] = v
+			}
+		}
+	}
+	return
+}
+
+func (o OrderMap) Orders() (orders []Order) {
+	var pos *Order
+	for _, v := range o {
+		pos = transOrder(v)
+		if pos == nil {
+			continue
+		}
+		orders = append(orders, *pos)
 	}
 	return
 }

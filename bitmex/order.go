@@ -296,7 +296,11 @@ func (b *Bitmex) CancelAllOrders() (orders []*Order, err error) {
 }
 
 // Orders get all active orders
-func (b *Bitmex) Orders() (orders []*Order, err error) {
+func (b *Bitmex) Orders() (orders []Order, err error) {
+	if b.enableWS {
+		orders = b.wsAPI.GetLastOrders()
+		return
+	}
 	filters := `{"ordStatus":"New"}`
 	params := order.OrderGetOrdersParams{
 		Symbol: &b.symbol,
@@ -307,7 +311,7 @@ func (b *Bitmex) Orders() (orders []*Order, err error) {
 		return
 	}
 	for _, v := range orderInfo.Payload {
-		orders = append(orders, transOrder(v))
+		orders = append(orders, *transOrder(v))
 	}
 	return
 }

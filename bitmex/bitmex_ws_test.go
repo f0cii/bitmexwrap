@@ -32,3 +32,18 @@ func TestTrade(t *testing.T) {
 		log.Println(trade)
 	}
 }
+
+func TestQuote(t *testing.T) {
+	log.SetLevel(log.DebugLevel)
+	clt := GetWSClient()
+	clt.SetSubscribe([]SubscribeInfo{SubscribeInfo{Op: BitmexWSTradeBin1m, Param: "XBTUSD"}})
+	klineChan := make(chan *Candle, 1024)
+	clt.SetKlineChan("1m", klineChan)
+	err := clt.Connect()
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	for kline := range klineChan {
+		log.Println(kline)
+	}
+}

@@ -3,6 +3,8 @@ package bitmex
 import (
 	"log"
 	"testing"
+
+	. "github.com/SuperGod/trademodel"
 )
 
 func GetClient() (bm *Bitmex) {
@@ -180,13 +182,14 @@ func TestOrders(t *testing.T) {
 	if err != nil {
 		t.Fatal(err.Error())
 	}
+	var order *Order
 	t.Log("Orders", orders)
 	if len(orders) > 0 {
-		orders, err = api.CancelOrder(*orders[0].OrderID)
+		order, err = api.CancelOrder(orders[0].OrderID)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
-		t.Log("cancel Order:", orders)
+		t.Log("cancel Order:", order)
 	}
 }
 

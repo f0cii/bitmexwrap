@@ -88,6 +88,11 @@ func (b *Bitmex) StartWS() (err error) {
 	return
 }
 
+// WS return ws instance
+func (b *Bitmex) WS() *BitmexWS {
+	return b.wsAPI
+}
+
 func (b *Bitmex) SetTradeChan(tradeChan chan Trade) {
 	b.wsAPI.SetTradeChan(tradeChan)
 }
@@ -268,6 +273,7 @@ func (b *Bitmex) GetTicker() (ticker Ticker, err error) {
 // SetSymbol set symbol
 func (b *Bitmex) SetSymbol(symbol string) (err error) {
 	b.symbol = symbol
+	err = b.wsAPI.SetSymbol(symbol)
 	return
 }
 
@@ -311,7 +317,7 @@ func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string) (klines [
 		// break
 		return
 	}
-	transCandle(klineInfo.Payload, &klines)
+	transCandle(klineInfo.Payload, &klines, bSize)
 
 	// nRet = int32(len(klineInfo.Payload))
 	// nStart += nRet
@@ -330,7 +336,7 @@ func (b *Bitmex) KlineRecent(nCount int32, bSize string) (klines []*Candle, err 
 	if err != nil {
 		return
 	}
-	transCandle(klineInfo.Payload, &klines)
+	transCandle(klineInfo.Payload, &klines, bSize)
 	return
 }
 

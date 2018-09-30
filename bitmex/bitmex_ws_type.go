@@ -147,34 +147,41 @@ func (r *Resp) Decode(buf []byte) (err error) {
 		r.hasTable = true
 		raw := ret.Get("data").Raw
 		switch r.Table {
-		case bitmexWSOrderbookL2:
+		case BitmexWSOrderbookL2:
 			var orderbooks OrderBookData
 			err = json.Unmarshal([]byte(raw), &orderbooks)
 			if err != nil {
 				return
 			}
 			r.data = orderbooks
-		case bitmexWSTrade:
+		case BitmexWSTrade:
 			var trades []*models.Trade
 			err = json.Unmarshal([]byte(raw), &trades)
 			if err != nil {
 				return
 			}
 			r.data = trades
-		case bitmexWSAnnouncement:
+		case BitmexWSAnnouncement:
 			var announs []Announcement
 			err = json.Unmarshal([]byte(raw), &announs)
 			if err != nil {
 				return
 			}
 			r.data = announs
-		case bitmexWSPosition:
+		case BitmexWSPosition:
 			var pos []*models.Position
 			err = json.Unmarshal([]byte(raw), &pos)
 			if err != nil {
 				return
 			}
 			r.data = pos
+		case BitmexWSTradeBin1m, BitmexWSTradeBin5m, BitmexWSTradeBin1h, BitmexWSTradeBin1d:
+			var klines []*models.TradeBin
+			err = json.Unmarshal([]byte(raw), &klines)
+			if err != nil {
+				return
+			}
+			r.data = klines
 		default:
 			log.Debug("unsupport table:", r.Table)
 		}
@@ -184,7 +191,7 @@ func (r *Resp) Decode(buf []byte) (err error) {
 }
 
 func (r *Resp) GetTradeData() (trades []*models.Trade) {
-	if r.Table != bitmexWSTrade || r.data == nil {
+	if r.Table != BitmexWSTrade || r.data == nil {
 		return
 	}
 	trades, _ = r.data.([]*models.Trade)
@@ -192,7 +199,7 @@ func (r *Resp) GetTradeData() (trades []*models.Trade) {
 }
 
 func (r *Resp) GetOrderbookL2() (orderbook OrderBookData) {
-	if r.Table != bitmexWSOrderbookL2 || r.data == nil {
+	if r.Table != BitmexWSOrderbookL2 || r.data == nil {
 		return
 	}
 	orderbook, _ = r.data.(OrderBookData)
@@ -200,10 +207,18 @@ func (r *Resp) GetOrderbookL2() (orderbook OrderBookData) {
 }
 
 func (r *Resp) GetPostions() (positions []*models.Position) {
-	if r.Table != bitmexWSPosition || r.data == nil {
+	if r.Table != BitmexWSPosition || r.data == nil {
 		return
 	}
 	positions, _ = r.data.([]*models.Position)
+	return
+}
+
+func (r *Resp) GetTradeBin() (klines []*models.TradeBin) {
+	if (r.Table != BitmexWSTradeBin1d && r.Table != BitmexWSTradeBin1h && r.Table != BitmexWSTradeBin5m && r.Table != BitmexWSTradeBin1m) || r.data == nil {
+		return
+	}
+	klines, _ = r.data.([]*models.TradeBin)
 	return
 }
 
@@ -254,9 +269,21 @@ func transTrade(v *models.Trade) (t Trade) {
 	return
 }
 
-func transCandle(klines []*models.TradeBin, candles *[]*Candle) {
+func transCandle(klines []*models.TradeBin, candles *[]*Candle, binSize string) {
+	var secDuration int64
+	switch binSize {
+	case "1m":
+		secDuration = 60
+	case "5m":
+		secDuration = 60 * 5
+	case "1h":
+		secDuration = 60 * 60
+	case "1d":
+		secDuration = 60 * 60 * 24
+	}
 	for _, v := range klines {
-		*candles = append(*candles, &Candle{Start: time.Time(*v.Timestamp).Unix(),
+		// v.Timestamp is the close time,not start time
+		*candles = append(*candles, &Candle{Start: time.Time(*v.Timestamp).Unix() - secDuration,
 			Open:   v.Open,
 			High:   v.High,
 			Low:    v.Low,
@@ -317,7 +344,7 @@ func (o PositionMap) Update(pos []*models.Position) {
 				if v.AvgEntryPrice != 0 {
 					old.AvgEntryPrice = v.AvgEntryPrice
 				}
-				v.CurrentQty = v.CurrentQty
+				old.CurrentQty = v.CurrentQty
 				old.LastPrice = v.LastPrice
 				old.MarkPrice = v.MarkPrice
 				old.SimpleQty = v.SimpleQty

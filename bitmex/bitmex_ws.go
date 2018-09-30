@@ -26,14 +26,30 @@ const (
 	bitmexWSURL     = "wss://www.bitmex.com/realtime"
 	testBitmexWSURL = "wss://testnet.bitmex.com/realtime"
 
-	bitmexWSOrderbookL2  = "orderBookL2"
-	bitmexWSOrderbookL10 = "orderBook10"
-	bitmexWSTrade        = "trade"
-	bitmexWSAnnouncement = "announcement"
-	bitmexWSLiquidation  = "liquidation"
+	// Bitmex websocket op
+	BitmexWSOrderbookL2  = "orderBookL2" // Full level 2 orderBook
+	BitmexWSOrderbookL10 = "orderBook10" // Top 10 levels using traditional full book push
 
-	bitmexWSOrder    = "order"
-	bitmexWSPosition = "position"
+	BitmexWSTrade      = "trade"      // Live trades
+	BitmexWSTradeBin1m = "tradeBin1m" // 1-minute trade bins
+	BitmexWSTradeBin5m = "tradeBin5m" // 5-minute trade bins
+	BitmexWSTradeBin1h = "tradeBin1h" // 1-hour trade bins
+	BitmexWSTradeBin1d = "tradeBin1d" // 1-day trade bins
+
+	BitmexWSAnnouncement = "announcement" // Site announcements
+	BitmexWSLiquidation  = "liquidation"  // Liquidation orders as they're entered into the book
+
+	BitmexWSQuote      = "quote"      // Top level of the book
+	BitmexWSQuoteBin1m = "quoteBin1m" // 1-minute quote bins
+	BitmexWSQuoteBin5m = "quoteBin5m" // 5-minute quote bins
+	BitmexWSQuoteBin1h = "quoteBin1h" // 1-hour quote bins
+	BitmexWSQuoteBin1d = "quoteBin1d" // 1-day quote bins
+
+	// Bitmex websocket private op
+	BitmexWSExecution = "execution" // Individual executions; can be multiple per order
+	BitmexWSOrder     = "order"     // Live updates on your orders
+	BitmexWSMargin    = "margin"    // Updates on your current account balance and margin requirements
+	BitmexWSPosition  = "position"  // Updates on your positions
 
 	bitmexActionInitialData = "partial"
 	bitmexActionInsertData  = "insert"
@@ -42,6 +58,11 @@ const (
 
 	WSTimeOut = 5 * time.Second
 )
+
+type SubscribeInfo struct {
+	Op    string
+	Param string
+}
 
 type BitmexWS struct {
 	TableLen               int
@@ -71,7 +92,10 @@ type BitmexWS struct {
 
 	tradeChan chan Trade
 	depthChan chan Depth
+	klineChan map[string]chan *Candle
 	timer     *time.Timer
+
+	subcribeTypes []SubscribeInfo
 }
 
 func NewBitmexWS(symbol, key, secret, proxy string) (bw *BitmexWS) {
@@ -96,7 +120,30 @@ func NewBitmexWSWithURL(symbol, key, secret, proxy, wsURL string) (bw *BitmexWS)
 	bw.pongChan = make(chan int, 1)
 	bw.shutdown = NewRoutineManagement()
 	bw.timer = time.NewTimer(WSTimeOut)
+	bw.subcribeTypes = []SubscribeInfo{SubscribeInfo{Op: BitmexWSOrderbookL2, Param: bw.symbol},
+		SubscribeInfo{Op: BitmexWSTrade, Param: bw.symbol},
+		SubscribeInfo{Op: BitmexWSPosition, Param: bw.symbol}}
+	bw.klineChan = make(map[string]chan *Candle)
 	return
+}
+
+func (bw *BitmexWS) SetSymbol(symbol string) (err error) {
+	bw.symbol = symbol
+	return
+}
+
+func (bw *BitmexWS) SetKlineChan(binSize string, klineChan chan *Candle) (err error) {
+	bw.klineChan[binSize] = klineChan
+	return
+}
+
+func (bw *BitmexWS) SetSubscribe(subcribeTypes []SubscribeInfo) {
+	bw.subcribeTypes = subcribeTypes
+	return
+}
+
+func (bw *BitmexWS) AddSubscribe(subcribeInfo SubscribeInfo) {
+	bw.subcribeTypes = append(bw.subcribeTypes, subcribeInfo)
 }
 
 func (bw *BitmexWS) SetProxy(proxy string) {
@@ -287,14 +334,11 @@ func (bw *BitmexWS) subscribe() (err error) {
 	subscriber.Command = "subscribe"
 
 	// Announcement subscribe
-	subscriber.Args = append(subscriber.Args, bitmexWSAnnouncement)
-	subscriber.Args = append(subscriber.Args,
-		bitmexWSOrderbookL2+":"+bw.symbol)
-	subscriber.Args = append(subscriber.Args,
-		bitmexWSTrade+":"+bw.symbol)
-	subscriber.Args = append(subscriber.Args,
-		bitmexWSPosition+":"+bw.symbol)
-
+	// subscriber.Args = append(subscriber.Args, bitmexWSAnnouncement)
+	for _, v := range bw.subcribeTypes {
+		subscriber.Args = append(subscriber.Args,
+			v.Op+":"+v.Param)
+	}
 	err = bw.wsConn.WriteJSON(subscriber)
 	if err != nil {
 		return err
@@ -343,15 +387,23 @@ func (bw *BitmexWS) handleMessage() {
 			}
 		} else if ret.HasTable() {
 			switch ret.Table {
-			case bitmexWSOrderbookL2:
+			case BitmexWSOrderbookL2:
 				err = bw.processOrderbook(&ret)
-			case bitmexWSTrade:
+			case BitmexWSTrade:
 				err = bw.processTrade(&ret)
-			case bitmexWSAnnouncement:
+			case BitmexWSAnnouncement:
 				// err = bw.processTrade(&ret)
-			case bitmexWSPosition:
+			case BitmexWSPosition:
 				// log.Debug("processPosition", msg)
 				err = bw.processPosition(&ret)
+			case BitmexWSTradeBin1m:
+				err = bw.processTradeBin("1m", &ret)
+			case BitmexWSTradeBin5m:
+				err = bw.processTradeBin("5m", &ret)
+			case BitmexWSTradeBin1h:
+				err = bw.processTradeBin("1h", &ret)
+			case BitmexWSTradeBin1d:
+				err = bw.processTradeBin("1d", &ret)
 			default:
 				log.Println(ret.Table, msg)
 			}
@@ -466,5 +518,27 @@ func (bw *BitmexWS) processPosition(msg *Resp) (err error) {
 		return
 	}
 	bw.SetLastPos(bw.pos.Pos())
+	return
+}
+
+func (bw *BitmexWS) processTradeBin(binSize string, msg *Resp) (err error) {
+	klineChan, ok := bw.klineChan[binSize]
+	if !ok {
+		log.Debug("no such kline chan", binSize)
+		return
+	}
+	datas := msg.GetTradeBin()
+	switch msg.Action {
+	case bitmexActionInitialData, bitmexActionUpdateData, bitmexActionInsertData:
+		var candles []*Candle
+		transCandle(datas, &candles, binSize)
+		for _, v := range candles {
+			klineChan <- v
+		}
+	// case bitmexActionDeleteData:
+	default:
+		err = fmt.Errorf("unsupport action:%s", msg.Action)
+		return
+	}
 	return
 }

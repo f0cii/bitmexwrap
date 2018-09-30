@@ -235,8 +235,12 @@ func (b *Bitmex) Ticker() (ticker Ticker, err error) {
 	depth := b.wsAPI.GetLastDepth()
 	ticker.Last = trade.Price
 	// ticker.Volume = trade.H
-	ticker.Ask = depth.Buys[0].Price
-	ticker.Bid = depth.Sells[0].Price
+	if len(depth.Buys) > 0 {
+		ticker.Ask = depth.Buys[0].Price
+	}
+	if len(depth.Sells) > 0 {
+		ticker.Bid = depth.Sells[0].Price
+	}
 	return
 }
 

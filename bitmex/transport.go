@@ -198,3 +198,11 @@ func (r *RequestBuffer) GetBody() []byte {
 	}
 	return r.buf.Bytes()
 }
+
+func (r *RequestBuffer) GetBodyParam() interface{} {
+	return nil
+}
+
+func (r *RequestBuffer) GetFileParam() map[string][]runtime.NamedReadCloser {
+	return nil
+}

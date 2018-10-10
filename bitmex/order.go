@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	. "github.com/SuperGod/trademodel"
 	"github.com/sumorf/coinex/bitmex/client/order"
 	"github.com/sumorf/coinex/bitmex/models"
-	. "github.com/SuperGod/trademodel"
 )
 
 const (
@@ -40,23 +40,23 @@ func transOrder(o *models.Order) (ret *Order) {
 
 // Buy open long with price
 func (b *Bitmex) Buy(price float64, amount float64) (ret *Order, err error) {
-	ret, err = b.OpenLong(price, amount)
+	ret, err = b.OpenLong(price, amount, false)
 	return
 }
 
 // Buy open long with price
 func (b *Bitmex) Sell(price float64, amount float64) (ret *Order, err error) {
-	ret, err = b.OpenShort(price, amount)
+	ret, err = b.OpenShort(price, amount, false)
 	return
 }
 
 // OpenLong open long with price
-func (b *Bitmex) OpenLong(price float64, amount float64) (ret *Order, err error) {
+func (b *Bitmex) OpenLong(price float64, amount float64, postOnly bool) (ret *Order, err error) {
 	comment := "open long with bitmex api"
 	side := "Buy"
 	orderType := "Limit"
 	nAmount := int32(amount)
-	newOrder, err := b.createOrder(price, nAmount, side, orderType, comment)
+	newOrder, err := b.createOrder(price, nAmount, side, orderType, comment, postOnly)
 	if err != nil {
 		return
 	}
@@ -77,10 +77,10 @@ func (b *Bitmex) CloseLong(price float64, amount float64) (ret *Order, err error
 }
 
 // OpenShort open short with price
-func (b *Bitmex) OpenShort(price float64, amount float64) (ret *Order, err error) {
+func (b *Bitmex) OpenShort(price float64, amount float64, postOnly bool) (ret *Order, err error) {
 	comment := "open short with bitmex api"
 	nAmount := 0 - int32(amount)
-	newOrder, err := b.createOrder(price, nAmount, OrderSell, OrderTypeLimit, comment)
+	newOrder, err := b.createOrder(price, nAmount, OrderSell, OrderTypeLimit, comment, postOnly)
 	if err != nil {
 		return
 	}
@@ -104,7 +104,7 @@ func (b *Bitmex) CloseShort(price float64, amount float64) (ret *Order, err erro
 func (b *Bitmex) OpenLongMarket(amount float64) (ret *Order, err error) {
 	comment := "open market long with bitmex api"
 	nAmount := int32(amount)
-	newOrder, err := b.createOrder(0, nAmount, OrderBuy, OrderTypeMarket, comment)
+	newOrder, err := b.createOrder(0, nAmount, OrderBuy, OrderTypeMarket, comment, false)
 	if err != nil {
 		return
 	}
@@ -128,7 +128,7 @@ func (b *Bitmex) CloseLongMarket(amount float64) (ret *Order, err error) {
 func (b *Bitmex) OpenShortMarket(amount float64) (ret *Order, err error) {
 	comment := "open market short with bitmex api"
 	nAmount := 0 - int32(amount)
-	newOrder, err := b.createOrder(0, nAmount, OrderSell, OrderTypeMarket, comment)
+	newOrder, err := b.createOrder(0, nAmount, OrderSell, OrderTypeMarket, comment, false)
 	if err != nil {
 		return
 	}
@@ -240,7 +240,7 @@ func (b *Bitmex) closeOrder(price float64, amount int32, side, orderType, commen
 	return
 }
 
-func (b *Bitmex) createOrder(price float64, amount int32, side, orderType, comment string) (newOrder *models.Order, err error) {
+func (b *Bitmex) createOrder(price float64, amount int32, side, orderType, comment string, postOnly bool) (newOrder *models.Order, err error) {
 	params := order.OrderNewParams{
 		Side:     &side,
 		Symbol:   b.symbol,
@@ -250,6 +250,10 @@ func (b *Bitmex) createOrder(price float64, amount int32, side, orderType, comme
 	}
 	if price != 0 {
 		params.Price = &price
+	}
+	if postOnly {
+		execInst := "ParticipateDoNotInitiate"
+		params.ExecInst = &execInst
 	}
 	orderInfo, err := b.api.Order.OrderNew(&params, nil)
 	if err != nil {

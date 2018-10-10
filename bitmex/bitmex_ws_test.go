@@ -5,7 +5,7 @@ import (
 
 	. "github.com/SuperGod/trademodel"
 
-	. "github.com/SuperGod/coinex"
+	. "github.com/sumorf/coinex"
 	log "github.com/sirupsen/logrus"
 )
 

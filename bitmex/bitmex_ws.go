@@ -12,11 +12,11 @@ import (
 	"sync"
 	"time"
 
-	. "github.com/SuperGod/coinex"
+	. "github.com/sumorf/coinex"
 
 	. "github.com/SuperGod/trademodel"
 
-	"github.com/SuperGod/coinex/bitmex/models"
+	"github.com/sumorf/coinex/bitmex/models"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 )

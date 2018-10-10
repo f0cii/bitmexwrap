@@ -1,7 +1,7 @@
 package bitmex
 
 import (
-	. "github.com/SuperGod/coinex"
+	. "github.com/sumorf/coinex"
 )
 
 func GetClientByName(name string, bTest bool) (bm *Bitmex) {

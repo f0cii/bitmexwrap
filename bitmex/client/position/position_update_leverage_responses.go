@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/SuperGod/coinex/bitmex/models"
+	models "github.com/sumorf/coinex/bitmex/models"
 )
 
 // PositionUpdateLeverageReader is a Reader for the PositionUpdateLeverage structure.

@@ -16,9 +16,9 @@ import (
 
 	. "github.com/SuperGod/trademodel"
 
-	"github.com/sumorf/coinex/bitmex/models"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
+	"github.com/sumorf/coinex/bitmex/models"
 )
 
 const (

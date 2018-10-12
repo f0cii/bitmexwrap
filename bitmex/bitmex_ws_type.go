@@ -9,9 +9,9 @@ import (
 
 	. "github.com/sumorf/coinex"
 
-	"github.com/sumorf/coinex/bitmex/models"
 	. "github.com/SuperGod/trademodel"
 	log "github.com/sirupsen/logrus"
+	"github.com/sumorf/coinex/bitmex/models"
 	"github.com/tidwall/gjson"
 )
 
@@ -395,15 +395,33 @@ func (o OrderMap) Update(orders []*models.Order, isDelete bool) {
 	var ok bool
 	for _, v := range orders {
 		if isDelete {
-			delete(o, v.Symbol)
+			delete(o, *v.OrderID)
 		} else {
 			old, ok = o[*v.OrderID]
-			if ok {
-				old.Account = v.Account
-				old.Price = v.Price
-			} else {
+			if !ok {
 				o[*v.OrderID] = v
+				continue
 			}
+
+			if v.Price > 0 {
+				old.Price = v.Price
+			}
+			if v.OrderQty > 0 {
+				old.OrderQty = v.OrderQty
+			}
+			if v.OrdStatus != "" {
+				old.OrdStatus = v.OrdStatus
+			}
+			if v.AvgPx > 0 {
+				old.AvgPx = v.AvgPx
+			}
+			if v.CumQty > 0 {
+				old.CumQty = v.CumQty
+			}
+			if v.SimpleCumQty > 0 {
+				old.SimpleCumQty = v.SimpleCumQty
+			}
+			old.Timestamp = v.Timestamp // 2018-10-12T02:33:18.886Z
 		}
 	}
 	return

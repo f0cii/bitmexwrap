@@ -305,6 +305,11 @@ func (b *Bitmex) Orders() (orders []Order, err error) {
 		orders = b.wsAPI.GetLastOrders()
 		return
 	}
+	return b.GetOrders()
+}
+
+// Orders get all active orders
+func (b *Bitmex) GetOrders() (orders []Order, err error) {
 	filters := `{"ordStatus":"New"}`
 	params := order.OrderGetOrdersParams{
 		Symbol: &b.symbol,

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"sync"
 	"time"
 
 	. "github.com/sumorf/coinex"
@@ -383,23 +384,33 @@ func (o PositionMap) Pos() (poses []Position) {
 	return
 }
 
-type OrderMap map[string]*models.Order
+//type OrderMap map[string]*models.Order
+
+type OrderMap struct {
+	m map[string]*models.Order
+	sync.RWMutex
+}
 
 func NewOrderMap() (o OrderMap) {
-	o = make(OrderMap)
+	o = OrderMap{
+		m: make(map[string]*models.Order),
+	}
 	return
 }
 
 func (o OrderMap) Update(orders []*models.Order, isDelete bool) {
+	o.Lock()
+	defer o.Unlock()
+
 	var old *models.Order
 	var ok bool
 	for _, v := range orders {
 		if isDelete {
-			delete(o, *v.OrderID)
+			delete(o.m, *v.OrderID)
 		} else {
-			old, ok = o[*v.OrderID]
+			old, ok = o.m[*v.OrderID]
 			if !ok {
-				o[*v.OrderID] = v
+				o.m[*v.OrderID] = v
 				continue
 			}
 
@@ -428,8 +439,11 @@ func (o OrderMap) Update(orders []*models.Order, isDelete bool) {
 }
 
 func (o OrderMap) Orders() (orders []Order) {
+	o.RLock()
+	defer o.RUnlock()
+
 	var pos *Order
-	for _, v := range o {
+	for _, v := range o.m {
 		pos = transOrder(v)
 		if pos == nil {
 			continue

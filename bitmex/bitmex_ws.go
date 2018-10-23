@@ -12,6 +12,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
 	. "github.com/sumorf/coinex"
 
 	. "github.com/SuperGod/trademodel"
@@ -202,6 +204,24 @@ func (bw *BitmexWS) GetLastPos() (poses []Position) {
 	bw.lastPositionMutex.RUnlock()
 	// log.Debug("processPosition", poses)
 	return
+}
+
+func (bw *BitmexWS) UpdateOrders(orders []Order) {
+	tOrders := []*models.Order{}
+	for _, order := range orders {
+		tOrder := &models.Order{
+			Currency:  order.Currency,
+			OrderQty:  int64(order.Amount),
+			AvgPx:     order.Price,
+			Price:     order.Price,
+			OrdStatus: order.Status,
+			Side:      order.Side,
+			Timestamp: strfmt.DateTime(order.Time),
+		}
+		tOrders = append(tOrders, tOrder)
+	}
+	bw.orders.Update(tOrders, false)
+	bw.SetLastOrders(bw.orders.Orders())
 }
 
 func (bw *BitmexWS) SetLastOrders(orders []Order) {

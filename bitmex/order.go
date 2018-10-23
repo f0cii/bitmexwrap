@@ -308,7 +308,16 @@ func (b *Bitmex) Orders() (orders []Order, err error) {
 	return b.GetOrders()
 }
 
-// Orders get all active orders
+// Order get an active orders
+func (b *Bitmex) Order(oid string) (newOrder *Order, err error) {
+	if b.enableWS {
+		order, err := b.wsAPI.GetLastOrder(oid)
+		return &order, err
+	}
+	return b.GetOrder(oid)
+}
+
+// GetOrders get all active orders
 func (b *Bitmex) GetOrders() (orders []Order, err error) {
 	filters := `{"ordStatus":"New"}`
 	params := order.OrderGetOrdersParams{
@@ -325,8 +334,8 @@ func (b *Bitmex) GetOrders() (orders []Order, err error) {
 	return
 }
 
-// Orders get all active orders
-func (b *Bitmex) Order(oid string) (newOrder *Order, err error) {
+// GetOrder get an active orders
+func (b *Bitmex) GetOrder(oid string) (newOrder *Order, err error) {
 	filters := fmt.Sprintf(`{"orderID":"%s"}`, oid)
 	params := order.OrderGetOrdersParams{
 		Symbol: &b.symbol,

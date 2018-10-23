@@ -237,6 +237,23 @@ func (bw *BitmexWS) GetLastOrders() (orders []Order) {
 	return
 }
 
+func (bw *BitmexWS) GetLastOrder(oid string) (order Order, err error) {
+	flag := false
+	bw.lastOrderMutex.RLock()
+	for _, o := range bw.lastOrder {
+		if order.OrderID == oid {
+			order = o
+			flag = true
+			break
+		}
+	}
+	bw.lastOrderMutex.RUnlock()
+	if !flag {
+		err = NoOrderFound
+	}
+	return
+}
+
 func (bw *BitmexWS) SetTradeChan(tradeChan chan Trade) {
 	bw.tradeChan = tradeChan
 }

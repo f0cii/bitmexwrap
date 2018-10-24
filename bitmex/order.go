@@ -341,7 +341,8 @@ func (b *Bitmex) GetOrder(oid string) (newOrder *Order, err error) {
 		Symbol: &b.symbol,
 		Filter: &filters,
 	}
-	orderInfo, err := b.api.Order.OrderGetOrders(&params, nil)
+	var orderInfo *order.OrderGetOrdersOK
+	orderInfo, err = b.api.Order.OrderGetOrders(&params, nil)
 	if err != nil {
 		return
 	}

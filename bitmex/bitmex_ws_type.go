@@ -398,7 +398,7 @@ func NewOrderMap() (o OrderMap) {
 	return
 }
 
-func (o OrderMap) Update(orders []*models.Order, isDelete bool) {
+func (o *OrderMap) Update(orders []*models.Order, isDelete bool) {
 	o.Lock()
 	defer o.Unlock()
 
@@ -438,7 +438,7 @@ func (o OrderMap) Update(orders []*models.Order, isDelete bool) {
 	return
 }
 
-func (o OrderMap) Orders() (orders []Order) {
+func (o *OrderMap) Orders() (orders []Order) {
 	o.RLock()
 	defer o.RUnlock()
 

@@ -242,7 +242,7 @@ func (bw *BitmexWS) GetLastOrder(oid string) (order Order, err error) {
 	flag := false
 	bw.lastOrderMutex.RLock()
 	for _, o := range bw.lastOrder {
-		if order.OrderID == oid {
+		if o.OrderID == oid {
 			order = o
 			flag = true
 			break

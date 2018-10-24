@@ -391,8 +391,8 @@ type OrderMap struct {
 	sync.RWMutex
 }
 
-func NewOrderMap() (o OrderMap) {
-	o = OrderMap{
+func NewOrderMap() (o *OrderMap) {
+	o = &OrderMap{
 		m: make(map[string]*models.Order),
 	}
 	return

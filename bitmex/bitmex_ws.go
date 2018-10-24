@@ -79,7 +79,7 @@ type BitmexWS struct {
 	orderBook              OrderBookMap
 	trades                 []*models.Trade
 	pos                    PositionMap
-	orders                 OrderMap
+	orders                 *OrderMap
 
 	pongChan chan int
 	shutdown *Shutdown
@@ -210,6 +210,7 @@ func (bw *BitmexWS) UpdateOrders(orders []Order) {
 	tOrders := []*models.Order{}
 	for _, order := range orders {
 		tOrder := &models.Order{
+			OrderID:   &order.OrderID,
 			Currency:  order.Currency,
 			OrderQty:  int64(order.Amount),
 			AvgPx:     order.Price,

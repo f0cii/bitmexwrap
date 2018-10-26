@@ -5,9 +5,11 @@ import (
 	"net/url"
 	"time"
 
-	. "github.com/sumorf/coinex"
 	. "github.com/SuperGod/trademodel"
+	. "github.com/sumorf/coinex"
 
+	"github.com/go-openapi/strfmt"
+	log "github.com/sirupsen/logrus"
 	apiclient "github.com/sumorf/coinex/bitmex/client"
 	"github.com/sumorf/coinex/bitmex/client/instrument"
 	"github.com/sumorf/coinex/bitmex/client/order_book"
@@ -15,8 +17,6 @@ import (
 	"github.com/sumorf/coinex/bitmex/client/trade"
 	apiuser "github.com/sumorf/coinex/bitmex/client/user"
 	"github.com/sumorf/coinex/bitmex/models"
-	"github.com/go-openapi/strfmt"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -139,7 +139,13 @@ func (b *Bitmex) Positions() (positions []Position, err error) {
 		positions = b.wsAPI.GetLastPos()
 		return
 	}
-	pos, err := b.api.Position.PositionGet(&position.PositionGetParams{}, nil)
+	return b.GetPositions()
+}
+
+// GetPositions get current positions
+func (b *Bitmex) GetPositions() (positions []Position, err error) {
+	var pos *position.PositionGetOK
+	pos, err = b.api.Position.PositionGet(&position.PositionGetParams{}, nil)
 	if err != nil {
 		return
 	}

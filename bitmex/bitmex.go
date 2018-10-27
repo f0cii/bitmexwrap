@@ -159,6 +159,8 @@ func (b *Bitmex) GetPositions() (positions []Position, err error) {
 		// UnrealisedRoePcnt 是按标记价格计算的盈亏
 		// UnrealisedPnl 未实现盈亏
 		// UnrealisedPnlPcnt 未实现盈亏%
+		// markPrice 标记价
+		// avgEntryPrice 开仓均价
 		positions = append(positions, *position)
 	}
 	return
@@ -171,6 +173,19 @@ func (b *Bitmex) ContractBalances() (balances map[Contract]Balance, err error) {
 		return
 	}
 	fmt.Println(wallet)
+	return
+}
+
+// Balance get balance of user
+func (b *Bitmex) Balance() (balance Balance, err error) {
+	wallet, err := b.api.User.UserGetWallet(&apiuser.UserGetWalletParams{}, nil)
+	if err != nil {
+		return
+	}
+	balance.Available = float64(wallet.Payload.Amount)
+	balance.Balance = float64(wallet.Payload.Amount)
+	balance.Currency = *wallet.Payload.Currency
+	balance.Frozen = 0
 	return
 }
 

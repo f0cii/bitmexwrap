@@ -337,6 +337,9 @@ func transPosition(v *models.Position) (pos *Position) {
 		Hold:        float64(v.CurrentQty),
 		ProfitRatio: float64(v.UnrealisedRoePcnt),
 		Price:       v.AvgEntryPrice,
+		CostPrice:   v.AvgCostPrice,
+		LastPrice:   v.LastPrice,
+		MarkPrice:   v.MarkPrice,
 	}
 	return
 }

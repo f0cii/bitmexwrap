@@ -25,8 +25,11 @@ type Position struct {
 	Info        Contract // 合约信息
 	Type        int      // 合约类型，Long: 多头，Short: 空头
 	Hold        float64  // 持有仓位
-	Price       float64  // 开仓价格
-	ProfitRatio float64  // 盈利比例,正数表示盈利，负数表示亏岁
+	Price       float64  // 开仓价格/开仓均价 AvgEntryPrice
+	CostPrice   float64  // 成本价格
+	LastPrice   float64  // 最新成交价
+	MarkPrice   float64  // 标记价格
+	ProfitRatio float64  // 盈利比例,正数表示盈利，负数表示亏损
 }
 
 type BaseExchanger interface {

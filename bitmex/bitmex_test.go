@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	. "github.com/SuperGod/trademodel"
+	. "github.com/sumorf/trademodel"
 )
 
 func GetClient() (bm *Bitmex) {

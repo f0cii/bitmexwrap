@@ -3,10 +3,10 @@ package bitmex
 import (
 	"testing"
 
-	. "github.com/SuperGod/trademodel"
+	. "github.com/sumorf/trademodel"
 
-	. "github.com/sumorf/coinex"
 	log "github.com/sirupsen/logrus"
+	. "github.com/sumorf/coinex"
 )
 
 func GetWSClient() (bm *BitmexWS) {

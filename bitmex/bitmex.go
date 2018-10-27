@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"time"
 
-	. "github.com/SuperGod/trademodel"
 	. "github.com/sumorf/coinex"
+	. "github.com/sumorf/trademodel"
 
 	"github.com/go-openapi/strfmt"
 	log "github.com/sirupsen/logrus"
@@ -151,11 +151,14 @@ func (b *Bitmex) GetPositions() (positions []Position, err error) {
 	}
 	var position *Position
 	for _, v := range pos.Payload {
+		log.Printf("%#v", v)
 		position = transPosition(v)
 		if pos == nil {
 			continue
 		}
 		// UnrealisedRoePcnt 是按标记价格计算的盈亏
+		// UnrealisedPnl 未实现盈亏
+		// UnrealisedPnlPcnt 未实现盈亏%
 		positions = append(positions, *position)
 	}
 	return

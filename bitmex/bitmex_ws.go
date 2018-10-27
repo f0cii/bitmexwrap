@@ -16,7 +16,7 @@ import (
 
 	. "github.com/sumorf/coinex"
 
-	. "github.com/SuperGod/trademodel"
+	. "github.com/sumorf/trademodel"
 
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"

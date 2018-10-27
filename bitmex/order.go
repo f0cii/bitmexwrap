@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/SuperGod/trademodel"
 	"github.com/sumorf/coinex/bitmex/client/order"
 	"github.com/sumorf/coinex/bitmex/models"
+	. "github.com/sumorf/trademodel"
 )
 
 const (

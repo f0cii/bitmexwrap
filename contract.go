@@ -3,7 +3,7 @@ package coinex
 import (
 	"time"
 
-	. "github.com/SuperGod/trademodel"
+	. "github.com/sumorf/trademodel"
 )
 
 const (
@@ -25,7 +25,7 @@ type Position struct {
 	Info        Contract // 合约信息
 	Type        int      // 合约类型，Long: 多头，Short: 空头
 	Hold        float64  // 持有仓位
-	Price       float64  //开仓价格
+	Price       float64  // 开仓价格
 	ProfitRatio float64  // 盈利比例,正数表示盈利，负数表示亏岁
 }
 

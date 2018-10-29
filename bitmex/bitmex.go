@@ -153,7 +153,7 @@ func (b *Bitmex) GetPositions() (positions []Position, err error) {
 	for _, v := range pos.Payload {
 		log.Printf("%#v", v)
 		position = transPosition(v)
-		if pos == nil {
+		if position == nil {
 			continue
 		}
 		// UnrealisedRoePcnt 是按标记价格计算的盈亏

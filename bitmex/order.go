@@ -355,3 +355,17 @@ func (b *Bitmex) GetOrder(oid string) (newOrder *Order, err error) {
 	newOrder = transOrder(orderInfo.Payload[0])
 	return
 }
+
+func (b *Bitmex) OrderAmend(oid string, price float64) (newOrder *Order, err error) {
+	params := order.OrderAmendParams{
+		OrderID: &oid,
+		Price:   &price,
+	}
+	var orderAmendOK *order.OrderAmendOK
+	orderAmendOK, err = b.api.Order.OrderAmend(&params, nil)
+	if err != nil {
+		return
+	}
+	newOrder = transOrder(orderAmendOK.Payload)
+	return
+}

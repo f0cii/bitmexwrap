@@ -172,7 +172,16 @@ func (b *Bitmex) ContractBalances() (balances map[Contract]Balance, err error) {
 	if err != nil {
 		return
 	}
-	fmt.Println(wallet)
+	// fmt.Println(wallet)
+	c := Contract{}
+	balances = make(map[Contract]Balance)
+	balance := Balance{
+		Available: float64(wallet.Payload.Amount),
+		Balance:   float64(wallet.Payload.Amount),
+		Currency:  *wallet.Payload.Currency,
+		Frozen:    0,
+	}
+	balances[c] = balance
 	return
 }
 

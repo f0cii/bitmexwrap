@@ -213,7 +213,7 @@ func (bw *BitmexWS) UpdateOrders(orders []Order) {
 			OrderID:   &order.OrderID,
 			Currency:  order.Currency,
 			OrderQty:  int64(order.Amount),
-			AvgPx:     order.Price,
+			AvgPx:     order.PriceAvg,
 			Price:     order.Price,
 			OrdStatus: order.Status,
 			Side:      order.Side,

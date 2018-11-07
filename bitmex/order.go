@@ -28,13 +28,11 @@ func transOrder(o *models.Order) (ret *Order) {
 	ret = &Order{OrderID: *o.OrderID,
 		Currency: o.Currency,
 		Amount:   float64(o.OrderQty),
-		Price:    o.AvgPx,
+		Price:    o.Price,
+		PriceAvg: o.AvgPx,
 		Status:   o.OrdStatus,
 		Side:     o.Side,
 		Time:     time.Time(o.Timestamp)}
-	if ret.Price == 0 {
-		ret.Price = o.Price
-	}
 	return
 }
 

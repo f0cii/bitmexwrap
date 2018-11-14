@@ -166,6 +166,19 @@ func (b *Bitmex) GetPositions() (positions []Position, err error) {
 	return
 }
 
+// UpdatePositions update current positions
+func (b *Bitmex) UpdatePositions() (err error) {
+	var pos *position.PositionGetOK
+	pos, err = b.api.Position.PositionGet(&position.PositionGetParams{}, nil)
+	if err != nil {
+		return
+	}
+	positions := pos.Payload
+	b.wsAPI.pos.Update(positions)
+	b.wsAPI.SetLastPos(b.wsAPI.pos.Pos())
+	return
+}
+
 // ContractBalances get balances of each contract
 func (b *Bitmex) ContractBalances() (balances map[Contract]Balance, err error) {
 	wallet, err := b.api.User.UserGetWallet(&apiuser.UserGetWalletParams{}, nil)

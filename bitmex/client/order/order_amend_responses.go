@@ -101,7 +101,7 @@ type OrderAmendBadRequest struct {
 }
 
 func (o *OrderAmendBadRequest) Error() string {
-	return fmt.Sprintf("[PUT /order][%d] orderAmendBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[PUT /order][%d] orderAmendBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *OrderAmendBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

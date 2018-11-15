@@ -200,7 +200,8 @@ func (b *Bitmex) ContractBalances() (balances map[Contract]Balance, err error) {
 
 // Balance get balance of user
 func (b *Bitmex) Balance() (balance Balance, err error) {
-	wallet, err := b.api.User.UserGetWallet(&apiuser.UserGetWalletParams{}, nil)
+	var wallet *apiuser.UserGetWalletOK
+	wallet, err = b.api.User.UserGetWallet(&apiuser.UserGetWalletParams{}, nil)
 	if err != nil {
 		return
 	}
@@ -208,6 +209,17 @@ func (b *Bitmex) Balance() (balance Balance, err error) {
 	balance.Balance = float64(wallet.Payload.Amount)
 	balance.Currency = *wallet.Payload.Currency
 	balance.Frozen = 0
+	return
+}
+
+// GetWalletHistory get wallet history
+func (b *Bitmex) GetWalletHistory() (trans []*models.Transaction, err error) {
+	var walletHistory *apiuser.UserGetWalletHistoryOK
+	walletHistory, err = b.api.User.UserGetWalletHistory(&apiuser.UserGetWalletHistoryParams{}, nil)
+	if err != nil {
+		return
+	}
+	trans = walletHistory.Payload
 	return
 }
 

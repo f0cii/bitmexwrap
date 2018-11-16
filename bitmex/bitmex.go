@@ -215,7 +215,11 @@ func (b *Bitmex) Balance() (balance Balance, err error) {
 // GetWalletHistory get wallet history
 func (b *Bitmex) GetWalletHistory() (trans []*models.Transaction, err error) {
 	var walletHistory *apiuser.UserGetWalletHistoryOK
-	walletHistory, err = b.api.User.UserGetWalletHistory(&apiuser.UserGetWalletHistoryParams{}, nil)
+	currency := "XBt"
+	params := apiuser.UserGetWalletHistoryParams{
+		Currency: &currency,
+	}
+	walletHistory, err = b.api.User.UserGetWalletHistory(&params, nil)
 	if err != nil {
 		return
 	}

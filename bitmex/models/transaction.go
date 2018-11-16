@@ -26,6 +26,12 @@ type Transaction struct {
 	// amount
 	Amount int64 `json:"amount,omitempty"`
 
+	// walletBalance
+	WalletBalance int64 `json:"walletBalance,omitempty"`
+
+	// marginBalance
+	MarginBalance int64 `json:"marginBalance,omitempty"`
+
 	// currency
 	Currency string `json:"currency,omitempty"`
 
@@ -37,18 +43,18 @@ type Transaction struct {
 
 	// timestamp
 	// Format: date-time
-	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
+	Timestamp string `json:"timestamp,omitempty"` // strfmt.DateTime
 
 	// transact ID
 	// Required: true
-	TransactID *string `json:"transactID"`
+	TransactID string `json:"transactID"`
 
 	// transact status
 	TransactStatus string `json:"transactStatus,omitempty"`
 
 	// transact time
 	// Format: date-time
-	TransactTime strfmt.DateTime `json:"transactTime,omitempty"`
+	TransactTime string `json:"transactTime,omitempty"` // strfmt.DateTime
 
 	// transact type
 	TransactType string `json:"transactType,omitempty"`
@@ -85,9 +91,9 @@ func (m *Transaction) validateTimestamp(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("timestamp", "body", "date-time", m.Timestamp.String(), formats); err != nil {
-		return err
-	}
+	// if err := validate.FormatOf("timestamp", "body", "date-time", m.Timestamp.String(), formats); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
@@ -107,9 +113,9 @@ func (m *Transaction) validateTransactTime(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("transactTime", "body", "date-time", m.TransactTime.String(), formats); err != nil {
-		return err
-	}
+	// if err := validate.FormatOf("transactTime", "body", "date-time", m.TransactTime.String(), formats); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }

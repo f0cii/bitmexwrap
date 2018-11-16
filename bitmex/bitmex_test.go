@@ -1,9 +1,11 @@
 package bitmex
 
 import (
+	"encoding/json"
 	"log"
 	"testing"
 
+	"github.com/sumorf/coinex/bitmex/models"
 	. "github.com/sumorf/trademodel"
 )
 
@@ -87,13 +89,13 @@ func TestLongLimit(t *testing.T) {
 
 	api := GetClient()
 	high, low := GetHighLowPrice(t, api)
-	order1, err := api.OpenLong(low, 1)
+	order1, err := api.OpenLong(low, 1, false, "")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
 	t.Log("OpenLong:", order1)
 
-	order2, err := api.CloseLong(high, 1)
+	order2, err := api.CloseLong(high, 1, false, "")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -121,12 +123,12 @@ func TestLongMarket(t *testing.T) {
 func TestShortLimit(t *testing.T) {
 	api := GetClient()
 	high, low := GetHighLowPrice(t, api)
-	order1, err := api.OpenShort(high, 2)
+	order1, err := api.OpenShort(high, 2, false, "")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
 	t.Log("OpenShort:", order1)
-	order2, err := api.CloseShort(low, 2)
+	order2, err := api.CloseShort(low, 2, false, "")
 	if err != nil {
 		t.Fatal(err.Error())
 	}
@@ -209,4 +211,16 @@ func TestKlineRecent(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	t.Log("klines", klines)
+}
+
+func TestTransactionUnmarshal(t *testing.T) {
+	s := `[{"transactID":"00000000-0000-0000-0000-000000000000","account":149029,"currency":"XBt","transactType":"UnrealisedPNL","amount":121184,"fee":0,"transactStatus":"Pending","address":"XBTUSD","tx":"","text":"","transactTime":null,"walletBalance":994622,"marginBalance":1115806,"timestamp":null},{"transactID":"00000000-0000-0000-0000-000000000000","account":149029,"currency":"XBt","transactType":"RealisedPNL","amount":-7673,"fee":0,"transactStatus":"Completed","address":"XBTUSD","tx":"","text":"","transactTime":"2018-11-16T12:00:00.000Z","walletBalance":994622,"marginBalance":null,"timestamp":"2018-11-16T12:00:00.000Z"},{"transactID":"c2e2dca9-9e28-89bd-a823-022da81fbd00","account":149029,"currency":"XBt","transactType":"RealisedPNL","amount":1619,"fee":0,"transactStatus":"Completed","address":"XBTUSD","tx":"9fbc8db7-b3a1-85d1-bead-1727c96ba06e","text":"","transactTime":"2018-11-15T12:00:00.000Z","walletBalance":1002295,"marginBalance":null,"timestamp":"2018-11-15T12:00:00.347Z"},{"transactID":"411f59cd-98cc-b173-1588-6f77c17ccaad","account":149029,"currency":"XBt","transactType":"RealisedPNL","amount":792,"fee":0,"transactStatus":"Completed","address":"XBTUSD","tx":"8eda0f7c-8163-dfbe-579a-72ff84206d51","text":"","transactTime":"2018-11-14T12:00:00.000Z","walletBalance":1000676,"marginBalance":null,"timestamp":"2018-11-14T12:00:00.310Z"},{"transactID":"b00c4091-e82c-0104-fc7b-598615b3c32c","account":149029,"currency":"XBt","transactType":"RealisedPNL","amount":-116,"fee":0,"transactStatus":"Completed","address":"XBTUSD","tx":"0e095ac7-2fe3-4eb9-2cdb-725125c44af0","text":"","transactTime":"2018-11-13T12:00:00.000Z","walletBalance":999884,"marginBalance":null,"timestamp":"2018-11-13T12:00:00.237Z"},{"transactID":"6550dbae-f6db-2621-f416-395baa20148d","account":149029,"currency":"XBt","transactType":"Transfer","amount":1000000,"fee":null,"transactStatus":"Completed","address":"0","tx":"b1ff376d-ae54-e0f4-9a50-7bad626395e1","text":"Signup bonus","transactTime":"2018-11-09T01:45:20.474Z","walletBalance":1000000,"marginBalance":null,"timestamp":"2018-11-09T01:45:20.474Z"}]`
+	// 2018-11-16T12:00:00.000Z
+	trans := []*models.Transaction{}
+	err := json.Unmarshal([]byte(s), &trans)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log("trans", trans)
 }

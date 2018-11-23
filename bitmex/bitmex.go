@@ -24,6 +24,10 @@ const (
 	TestBaseURL = "testnet.bitmex.com"
 )
 
+var (
+	timeLocal, _ = time.LoadLocation("Local")
+)
+
 type Bitmex struct {
 	wsAPI     *BitmexWS
 	api       *apiclient.APIClient
@@ -311,7 +315,7 @@ func (b *Bitmex) Ticker() (ticker Ticker, err error) {
 	return
 }
 
-// Ticker
+// GetTicker get ticker
 func (b *Bitmex) GetTicker() (ticker Ticker, err error) {
 	reverse := true
 	nCount := int32(10)
@@ -327,8 +331,11 @@ func (b *Bitmex) GetTicker() (ticker Ticker, err error) {
 	if err != nil {
 		return
 	}
+
 	v := ret2.Payload[len(ret2.Payload)-1]
 	ticker.Last = v.Price
+	tm := time.Time(*v.Timestamp).In(timeLocal)
+	ticker.Timestamp = tm
 	ticker.Volume = v.HomeNotional
 	ticker.CurrencyPair = b.symbol
 	ticker.Ask = depth.Sells[0].Price

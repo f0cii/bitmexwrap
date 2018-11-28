@@ -1,1 +1,1 @@
-package coinex
+package bitmexwrap

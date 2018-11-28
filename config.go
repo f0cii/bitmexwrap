@@ -1,4 +1,4 @@
-package coinex
+package bitmexwrap
 
 import (
 	"encoding/json"

@@ -1,4 +1,4 @@
-package coinex
+package bitmexwrap
 
 // type Symbol struct {
 // 	Name          string

@@ -457,14 +457,8 @@ func (bw *BitmexWS) handleMessage() {
 				err = bw.processPosition(&ret)
 			case BitmexWSOrder:
 				err = bw.processOrder(&ret)
-			case BitmexWSTradeBin1m:
-				err = bw.processTradeBin("1m", &ret)
-			case BitmexWSTradeBin5m:
-				err = bw.processTradeBin("5m", &ret)
-			case BitmexWSTradeBin1h:
-				err = bw.processTradeBin("1h", &ret)
-			case BitmexWSTradeBin1d:
-				err = bw.processTradeBin("1d", &ret)
+			case BitmexWSTradeBin1m, BitmexWSTradeBin5m, BitmexWSTradeBin1h, BitmexWSTradeBin1d:
+				err = bw.processTradeBin(ret.Table, &ret)
 			default:
 				log.Println(ret.Table, msg)
 			}

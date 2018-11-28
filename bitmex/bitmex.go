@@ -6,7 +6,6 @@ import (
 	"time"
 
 	. "github.com/sumorf/bitmexwrap"
-	. "github.com/sumorf/trademodel"
 
 	"github.com/go-openapi/strfmt"
 	log "github.com/sirupsen/logrus"

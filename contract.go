@@ -2,8 +2,6 @@ package bitmexwrap
 
 import (
 	"time"
-
-	. "github.com/sumorf/trademodel"
 )
 
 const (

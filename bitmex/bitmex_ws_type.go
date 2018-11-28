@@ -12,7 +12,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"github.com/sumorf/bitmexwrap/bitmex/models"
-	. "github.com/sumorf/trademodel"
 	"github.com/tidwall/gjson"
 )
 

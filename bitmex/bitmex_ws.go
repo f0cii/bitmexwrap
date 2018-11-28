@@ -331,7 +331,7 @@ func (bw *BitmexWS) connectionHandler() {
 				select {
 				case <-bw.pongChan:
 					log.Debug("Bitmex websocket: PONG chan received")
-					// bw.timer.Reset(WSTimeOut)
+					bw.timer.Reset(WSTimeOut)
 					time.Sleep(time.Microsecond)
 					break OUT
 				case <-timeout:

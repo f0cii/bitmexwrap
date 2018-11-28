@@ -6,7 +6,7 @@ import (
 	. "github.com/sumorf/trademodel"
 
 	log "github.com/sirupsen/logrus"
-	. "github.com/sumorf/coinex"
+	. "github.com/sumorf/bitmexwrap"
 )
 
 func GetWSClient() (bm *BitmexWS) {

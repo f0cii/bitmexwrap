@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/sumorf/coinex/bitmex/models"
+	models "github.com/sumorf/bitmexwrap/bitmex/models"
 )
 
 // TradeGetReader is a Reader for the TradeGet structure.

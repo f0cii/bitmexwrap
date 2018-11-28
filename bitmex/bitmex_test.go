@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/sumorf/coinex/bitmex/models"
+	"github.com/sumorf/bitmexwrap/bitmex/models"
 	. "github.com/sumorf/trademodel"
 )
 

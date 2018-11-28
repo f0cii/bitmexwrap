@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sumorf/coinex/bitmex/client/order"
-	"github.com/sumorf/coinex/bitmex/models"
+	"github.com/sumorf/bitmexwrap/bitmex/client/order"
+	"github.com/sumorf/bitmexwrap/bitmex/models"
 	. "github.com/sumorf/trademodel"
 )
 

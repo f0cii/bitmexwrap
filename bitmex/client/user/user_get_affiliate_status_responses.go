@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/sumorf/coinex/bitmex/models"
+	models "github.com/sumorf/bitmexwrap/bitmex/models"
 )
 
 // UserGetAffiliateStatusReader is a Reader for the UserGetAffiliateStatus structure.

@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	models "github.com/sumorf/coinex/bitmex/models"
+	models "github.com/sumorf/bitmexwrap/bitmex/models"
 )
 
 // QuoteGetReader is a Reader for the QuoteGet structure.

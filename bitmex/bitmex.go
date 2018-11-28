@@ -5,18 +5,18 @@ import (
 	"net/url"
 	"time"
 
-	. "github.com/sumorf/coinex"
+	. "github.com/sumorf/bitmexwrap"
 	. "github.com/sumorf/trademodel"
 
 	"github.com/go-openapi/strfmt"
 	log "github.com/sirupsen/logrus"
-	apiclient "github.com/sumorf/coinex/bitmex/client"
-	"github.com/sumorf/coinex/bitmex/client/instrument"
-	"github.com/sumorf/coinex/bitmex/client/order_book"
-	"github.com/sumorf/coinex/bitmex/client/position"
-	"github.com/sumorf/coinex/bitmex/client/trade"
-	apiuser "github.com/sumorf/coinex/bitmex/client/user"
-	"github.com/sumorf/coinex/bitmex/models"
+	apiclient "github.com/sumorf/bitmexwrap/bitmex/client"
+	"github.com/sumorf/bitmexwrap/bitmex/client/instrument"
+	"github.com/sumorf/bitmexwrap/bitmex/client/order_book"
+	"github.com/sumorf/bitmexwrap/bitmex/client/position"
+	"github.com/sumorf/bitmexwrap/bitmex/client/trade"
+	apiuser "github.com/sumorf/bitmexwrap/bitmex/client/user"
+	"github.com/sumorf/bitmexwrap/bitmex/models"
 )
 
 const (

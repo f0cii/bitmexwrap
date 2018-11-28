@@ -14,13 +14,13 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
-	. "github.com/sumorf/coinex"
+	. "github.com/sumorf/bitmexwrap"
 
 	. "github.com/sumorf/trademodel"
 
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
-	"github.com/sumorf/coinex/bitmex/models"
+	"github.com/sumorf/bitmexwrap/bitmex/models"
 )
 
 const (

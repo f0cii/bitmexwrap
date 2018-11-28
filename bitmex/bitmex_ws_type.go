@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	. "github.com/sumorf/coinex"
+	. "github.com/sumorf/bitmexwrap"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/sumorf/coinex/bitmex/models"
+	"github.com/sumorf/bitmexwrap/bitmex/models"
 	. "github.com/sumorf/trademodel"
 	"github.com/tidwall/gjson"
 )

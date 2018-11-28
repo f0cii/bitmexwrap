@@ -10,6 +10,8 @@ If you want a more common package, see [gocryptotrader](https://github.com/thras
 
 
 # Cheers to
+Original project refer to [coinex](https://github.com/SuperGod/coinex)
+
 Bitmex Websocket refer to [gocryptotrader](https://github.com/thrasher-/gocryptotrader) 
 
 Bitmex RESTful API use [go-swagger](https://github.com/go-swagger/go-swagger)

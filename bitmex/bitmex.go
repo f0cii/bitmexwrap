@@ -370,7 +370,7 @@ func (b *Bitmex) GetLever() (lever float64, err error) {
 }
 
 // Kline Timestamp of kline is the end of the binSize
-func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string) (klines []*Candle, err error) {
+func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string, partial bool) (klines []*Candle, err error) {
 	startTime := strfmt.DateTime(start)
 	endTime := strfmt.DateTime(end)
 	var nStart int32
@@ -380,7 +380,8 @@ func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string) (klines [
 	if int32(nLimit) < nCount {
 		nCount = int32(nLimit)
 	}
-	params := &trade.TradeGetBucketedParams{Symbol: &b.symbol, BinSize: &bSize, StartTime: &startTime, EndTime: &endTime}
+	bPartial := partial
+	params := &trade.TradeGetBucketedParams{Symbol: &b.symbol, BinSize: &bSize, StartTime: &startTime, EndTime: &endTime, Partial: &bPartial}
 	// for {
 	params.Start = &nStart
 	params.Count = &nCount

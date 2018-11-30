@@ -401,10 +401,10 @@ func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string) (klines [
 }
 
 // KlineRecent get recent nCount klines
-func (b *Bitmex) KlineRecent(nCount int32, bSize string) (klines []*Candle, err error) {
+func (b *Bitmex) KlineRecent(nCount int32, bSize string, partial bool) (klines []*Candle, err error) {
 	bReverse := true
-	partial := true
-	params := &trade.TradeGetBucketedParams{BinSize: &bSize, Count: &nCount, Reverse: &bReverse, Symbol: &b.symbol, Partial: &partial}
+	bPartial := partial
+	params := &trade.TradeGetBucketedParams{BinSize: &bSize, Count: &nCount, Reverse: &bReverse, Symbol: &b.symbol, Partial: &bPartial}
 	klineInfo, err := b.api.Trade.TradeGetBucketed(params)
 	if err != nil {
 		return

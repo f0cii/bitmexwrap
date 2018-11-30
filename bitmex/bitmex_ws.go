@@ -384,6 +384,30 @@ func (bw *BitmexWS) sendAuth() error {
 	return bw.wsConn.WriteJSON(sendAuth)
 }
 
+// Subscribe one subscribe to a websocket channel
+func (bw *BitmexWS) Subscribe(subcribeInfo SubscribeInfo) (err error) {
+	if bw.wsConn == nil {
+		return errors.New("Not connected")
+	}
+
+	// Subscriber
+	var subscriber WSCmd
+	subscriber.Command = "subscribe"
+
+	// Announcement subscribe
+	// subscriber.Args = append(subscriber.Args, bitmexWSAnnouncement)
+	subscriber.Args = append(subscriber.Args,
+		subcribeInfo.Op+":"+subcribeInfo.Param)
+	err = bw.wsConn.WriteJSON(subscriber)
+	if err != nil {
+		return err
+	}
+
+	bw.AddSubscribe(subcribeInfo)
+
+	return nil
+}
+
 // subscribe subscribes to a websocket channel
 func (bw *BitmexWS) subscribe() (err error) {
 	// Subscriber

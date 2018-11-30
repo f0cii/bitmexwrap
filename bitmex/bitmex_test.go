@@ -206,7 +206,7 @@ func TestCancelAllOrders(t *testing.T) {
 
 func TestKlineRecent(t *testing.T) {
 	api := GetClient()
-	klines, err := api.KlineRecent(10, "1m")
+	klines, err := api.KlineRecent(10, "1m", false)
 	if err != nil {
 		t.Fatal(err.Error())
 	}

@@ -353,6 +353,11 @@ func (bw *BitmexWS) connectionHandler() {
 	}
 }
 
+// shutdown websocket runtine
+func (bw *BitmexWS) WSRoutineShutDown() {
+	bw.shutdown.routineShutdown()
+}
+
 // Close handles close to websocket API
 func (bw *BitmexWS) Close() {
 	bw.wsConn.Close()

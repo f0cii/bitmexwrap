@@ -323,7 +323,7 @@ func (bw *BitmexWS) connectionHandler() {
 			log.Debugln("time out first,send ping...")
 			err := bw.wsConn.WriteJSON("ping")
 			if err != nil {
-				bw.Reconnect()
+				bw.reconnect()
 				return
 			}
 		OUT:
@@ -339,7 +339,7 @@ func (bw *BitmexWS) connectionHandler() {
 					bw.wsConn.Close()
 
 					log.Warningln("Bitmex websocket: Connection timed out - Reconnecting...")
-					bw.Reconnect()
+					bw.reconnect()
 					return
 				}
 			}
@@ -353,18 +353,8 @@ func (bw *BitmexWS) connectionHandler() {
 	}
 }
 
-// shutdown websocket runtine
-func (bw *BitmexWS) WSRoutineShutDown() {
-	bw.shutdown.routineShutdown()
-}
-
-// Close handles close to websocket API
-func (bw *BitmexWS) Close() {
-	bw.wsConn.Close()
-}
-
 // Reconnect handles reconnections to websocket API
-func (bw *BitmexWS) Reconnect() {
+func (bw *BitmexWS) reconnect() {
 	for {
 		err := bw.Connect()
 		if err != nil {

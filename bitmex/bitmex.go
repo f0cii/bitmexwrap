@@ -304,6 +304,8 @@ func (b *Bitmex) Ticker() (ticker Ticker, err error) {
 	trade := b.wsAPI.GetLastTrade()
 	depth := b.wsAPI.GetLastDepth()
 	ticker.Last = trade.Price
+	ticker.CurrencyPair = b.symbol
+	ticker.Timestamp = trade.Time
 	// ticker.Volume = trade.H
 	if len(depth.Buys) > 0 {
 		ticker.Ask = depth.Buys[0].Price
@@ -380,8 +382,7 @@ func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string, partial b
 	if int32(nLimit) < nCount {
 		nCount = int32(nLimit)
 	}
-	bPartial := partial
-	params := &trade.TradeGetBucketedParams{Symbol: &b.symbol, BinSize: &bSize, StartTime: &startTime, EndTime: &endTime, Partial: &bPartial}
+	params := &trade.TradeGetBucketedParams{Symbol: &b.symbol, BinSize: &bSize, StartTime: &startTime, EndTime: &endTime, Partial: &partial}
 	// for {
 	params.Start = &nStart
 	params.Count = &nCount
@@ -404,8 +405,7 @@ func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string, partial b
 // KlineRecent get recent nCount klines
 func (b *Bitmex) KlineRecent(nCount int32, bSize string, partial bool) (klines []*Candle, err error) {
 	bReverse := true
-	bPartial := partial
-	params := &trade.TradeGetBucketedParams{BinSize: &bSize, Count: &nCount, Reverse: &bReverse, Symbol: &b.symbol, Partial: &bPartial}
+	params := &trade.TradeGetBucketedParams{BinSize: &bSize, Count: &nCount, Reverse: &bReverse, Symbol: &b.symbol, Partial: &partial}
 	klineInfo, err := b.api.Trade.TradeGetBucketed(params)
 	if err != nil {
 		return

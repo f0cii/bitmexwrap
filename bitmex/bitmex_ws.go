@@ -311,7 +311,7 @@ func (bw *BitmexWS) Connect() (err error) {
 // Timer handles connection loss or failure
 func (bw *BitmexWS) connectionHandler() {
 	defer func() {
-		log.Debug("Bitmex websocket: Connection handler routine shutdown")
+		log.Debugln("Bitmex websocket: Connection handler routine shutdown")
 	}()
 
 	shutdown := bw.shutdown.addRoutine()
@@ -320,7 +320,7 @@ func (bw *BitmexWS) connectionHandler() {
 		select {
 		case <-bw.timer.C:
 			timeout := time.After(WSTimeOut)
-			log.Println("time out first,send ping...")
+			log.Debugln("time out first,send ping...")
 			err := bw.wsConn.WriteJSON("ping")
 			if err != nil {
 				bw.reconnect()
@@ -330,23 +330,23 @@ func (bw *BitmexWS) connectionHandler() {
 			for {
 				select {
 				case <-bw.pongChan:
-					log.Debug("Bitmex websocket: PONG chan received")
+					log.Debugln("Bitmex websocket: PONG chan received")
 					bw.timer.Reset(WSTimeOut)
 					time.Sleep(time.Microsecond)
 					break OUT
 				case <-timeout:
-					log.Println("Bitmex websocket: Connection timed out - Closing connection....")
+					log.Warningln("Bitmex websocket: Connection timed out - Closing connection....")
 					bw.wsConn.Close()
 
-					log.Println("Bitmex websocket: Connection timed out - Reconnecting...")
+					log.Warningln("Bitmex websocket: Connection timed out - Reconnecting...")
 					bw.reconnect()
 					return
 				}
 			}
 		case <-shutdown:
-			log.Println("Bitmex websocket: shutdown requested - Closing connection....")
+			log.Errorln("Bitmex websocket: shutdown requested - Closing connection....")
 			bw.wsConn.Close()
-			log.Println("Bitmex websocket: Sending shutdown message")
+			log.Errorln("Bitmex websocket: Sending shutdown message")
 			bw.shutdown.routineShutdown()
 			return
 		}
@@ -358,7 +358,7 @@ func (bw *BitmexWS) reconnect() {
 	for {
 		err := bw.Connect()
 		if err != nil {
-			log.Println("Bitmex websocket: Connection timed out - Failed to connect, sleeping...")
+			log.Debugln("Bitmex websocket: Connection timed out - Failed to connect, sleeping...")
 			time.Sleep(time.Second * 2)
 			continue
 		}
@@ -455,7 +455,7 @@ func (bw *BitmexWS) handleMessage() {
 		var ret Resp
 		err = ret.Decode(data)
 		if err != nil {
-			log.Fatal(err)
+			log.Errorln(err)
 			continue
 		}
 		if ret.HasStatus() {
@@ -541,7 +541,6 @@ func (bw *BitmexWS) processOrderbook(msg *Resp) (err error) {
 		return errors.New("Bitmex websocket error: Elements not updated correctly")
 	}
 	depth := bw.orderBook.GetDepth()
-	// log.Debug("depth:", depth)
 	bw.SetLastDepth(depth)
 	if bw.depthChan != nil {
 		bw.depthChan <- depth

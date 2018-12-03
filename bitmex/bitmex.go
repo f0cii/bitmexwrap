@@ -154,7 +154,7 @@ func (b *Bitmex) GetPositions() (positions []Position, err error) {
 	}
 	var position *Position
 	for _, v := range pos.Payload {
-		log.Printf("%#v", v)
+		//log.Printf("%#v", v)
 		position = transPosition(v)
 		if position == nil {
 			continue

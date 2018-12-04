@@ -99,7 +99,7 @@ type SettlementGetBadRequest struct {
 }
 
 func (o *SettlementGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /settlement][%d] settlementGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /settlement][%d] settlementGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *SettlementGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

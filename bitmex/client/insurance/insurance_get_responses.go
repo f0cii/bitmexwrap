@@ -99,7 +99,7 @@ type InsuranceGetBadRequest struct {
 }
 
 func (o *InsuranceGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /insurance][%d] insuranceGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /insurance][%d] insuranceGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *InsuranceGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

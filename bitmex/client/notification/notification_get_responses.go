@@ -99,7 +99,7 @@ type NotificationGetBadRequest struct {
 }
 
 func (o *NotificationGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /notification][%d] notificationGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /notification][%d] notificationGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *NotificationGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

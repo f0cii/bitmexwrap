@@ -72,7 +72,7 @@ type ChatNewOK struct {
 }
 
 func (o *ChatNewOK) Error() string {
-	return fmt.Sprintf("[POST /chat][%d] chatNewOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /chat][%d] chatNewOK  %+v", 200, *o.Payload)
 }
 
 func (o *ChatNewOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type ChatNewBadRequest struct {
 }
 
 func (o *ChatNewBadRequest) Error() string {
-	return fmt.Sprintf("[POST /chat][%d] chatNewBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /chat][%d] chatNewBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *ChatNewBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

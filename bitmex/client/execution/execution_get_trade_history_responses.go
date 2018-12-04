@@ -99,7 +99,7 @@ type ExecutionGetTradeHistoryBadRequest struct {
 }
 
 func (o *ExecutionGetTradeHistoryBadRequest) Error() string {
-	return fmt.Sprintf("[GET /execution/tradeHistory][%d] executionGetTradeHistoryBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /execution/tradeHistory][%d] executionGetTradeHistoryBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *ExecutionGetTradeHistoryBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

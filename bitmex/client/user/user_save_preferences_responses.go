@@ -51,7 +51,7 @@ type UserSavePreferencesOK struct {
 }
 
 func (o *UserSavePreferencesOK) Error() string {
-	return fmt.Sprintf("[POST /user/preferences][%d] userSavePreferencesOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /user/preferences][%d] userSavePreferencesOK  %+v", 200, *o.Payload)
 }
 
 func (o *UserSavePreferencesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

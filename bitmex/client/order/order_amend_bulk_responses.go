@@ -99,7 +99,7 @@ type OrderAmendBulkBadRequest struct {
 }
 
 func (o *OrderAmendBulkBadRequest) Error() string {
-	return fmt.Sprintf("[PUT /order/bulk][%d] orderAmendBulkBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[PUT /order/bulk][%d] orderAmendBulkBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *OrderAmendBulkBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

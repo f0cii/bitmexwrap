@@ -72,7 +72,7 @@ type OrderAmendOK struct {
 }
 
 func (o *OrderAmendOK) Error() string {
-	return fmt.Sprintf("[PUT /order][%d] orderAmendOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /order][%d] orderAmendOK  %+v", 200, *o.Payload)
 }
 
 func (o *OrderAmendOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

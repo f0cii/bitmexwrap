@@ -99,7 +99,7 @@ type ChatGetChannelsBadRequest struct {
 }
 
 func (o *ChatGetChannelsBadRequest) Error() string {
-	return fmt.Sprintf("[GET /chat/channels][%d] chatGetChannelsBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /chat/channels][%d] chatGetChannelsBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *ChatGetChannelsBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

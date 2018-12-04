@@ -51,7 +51,7 @@ type UserConfirmWithdrawalOK struct {
 }
 
 func (o *UserConfirmWithdrawalOK) Error() string {
-	return fmt.Sprintf("[POST /user/confirmWithdrawal][%d] userConfirmWithdrawalOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /user/confirmWithdrawal][%d] userConfirmWithdrawalOK  %+v", 200, *o.Payload)
 }
 
 func (o *UserConfirmWithdrawalOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

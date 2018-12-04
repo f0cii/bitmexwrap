@@ -99,7 +99,7 @@ type InstrumentGetActiveAndIndicesBadRequest struct {
 }
 
 func (o *InstrumentGetActiveAndIndicesBadRequest) Error() string {
-	return fmt.Sprintf("[GET /instrument/activeAndIndices][%d] instrumentGetActiveAndIndicesBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /instrument/activeAndIndices][%d] instrumentGetActiveAndIndicesBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *InstrumentGetActiveAndIndicesBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

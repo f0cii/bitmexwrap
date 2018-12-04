@@ -72,7 +72,7 @@ type ChatGetConnectedOK struct {
 }
 
 func (o *ChatGetConnectedOK) Error() string {
-	return fmt.Sprintf("[GET /chat/connected][%d] chatGetConnectedOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /chat/connected][%d] chatGetConnectedOK  %+v", 200, *o.Payload)
 }
 
 func (o *ChatGetConnectedOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type ChatGetConnectedBadRequest struct {
 }
 
 func (o *ChatGetConnectedBadRequest) Error() string {
-	return fmt.Sprintf("[GET /chat/connected][%d] chatGetConnectedBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /chat/connected][%d] chatGetConnectedBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *ChatGetConnectedBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

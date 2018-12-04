@@ -51,7 +51,7 @@ type UserGetAffiliateStatusOK struct {
 }
 
 func (o *UserGetAffiliateStatusOK) Error() string {
-	return fmt.Sprintf("[GET /user/affiliateStatus][%d] userGetAffiliateStatusOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /user/affiliateStatus][%d] userGetAffiliateStatusOK  %+v", 200, *o.Payload)
 }
 
 func (o *UserGetAffiliateStatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

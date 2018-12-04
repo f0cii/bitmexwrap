@@ -72,7 +72,7 @@ type APIKeyDisableOK struct {
 }
 
 func (o *APIKeyDisableOK) Error() string {
-	return fmt.Sprintf("[POST /apiKey/disable][%d] apiKeyDisableOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /apiKey/disable][%d] apiKeyDisableOK  %+v", 200, *o.Payload)
 }
 
 func (o *APIKeyDisableOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type APIKeyDisableBadRequest struct {
 }
 
 func (o *APIKeyDisableBadRequest) Error() string {
-	return fmt.Sprintf("[POST /apiKey/disable][%d] apiKeyDisableBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /apiKey/disable][%d] apiKeyDisableBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *APIKeyDisableBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

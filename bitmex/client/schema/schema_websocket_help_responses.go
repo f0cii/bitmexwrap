@@ -99,7 +99,7 @@ type SchemaWebsocketHelpBadRequest struct {
 }
 
 func (o *SchemaWebsocketHelpBadRequest) Error() string {
-	return fmt.Sprintf("[GET /schema/websocketHelp][%d] schemaWebsocketHelpBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /schema/websocketHelp][%d] schemaWebsocketHelpBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *SchemaWebsocketHelpBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

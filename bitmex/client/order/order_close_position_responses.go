@@ -72,7 +72,7 @@ type OrderClosePositionOK struct {
 }
 
 func (o *OrderClosePositionOK) Error() string {
-	return fmt.Sprintf("[POST /order/closePosition][%d] orderClosePositionOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /order/closePosition][%d] orderClosePositionOK  %+v", 200, *o.Payload)
 }
 
 func (o *OrderClosePositionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type OrderClosePositionBadRequest struct {
 }
 
 func (o *OrderClosePositionBadRequest) Error() string {
-	return fmt.Sprintf("[POST /order/closePosition][%d] orderClosePositionBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /order/closePosition][%d] orderClosePositionBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *OrderClosePositionBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

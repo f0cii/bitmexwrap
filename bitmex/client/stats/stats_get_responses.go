@@ -99,7 +99,7 @@ type StatsGetBadRequest struct {
 }
 
 func (o *StatsGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /stats][%d] statsGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /stats][%d] statsGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *StatsGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

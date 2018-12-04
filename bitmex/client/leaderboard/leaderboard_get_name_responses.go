@@ -73,7 +73,7 @@ type LeaderboardGetNameOK struct {
 }
 
 func (o *LeaderboardGetNameOK) Error() string {
-	return fmt.Sprintf("[GET /leaderboard/name][%d] leaderboardGetNameOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /leaderboard/name][%d] leaderboardGetNameOK  %+v", 200, *o.Payload)
 }
 
 func (o *LeaderboardGetNameOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -102,7 +102,7 @@ type LeaderboardGetNameBadRequest struct {
 }
 
 func (o *LeaderboardGetNameBadRequest) Error() string {
-	return fmt.Sprintf("[GET /leaderboard/name][%d] leaderboardGetNameBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /leaderboard/name][%d] leaderboardGetNameBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *LeaderboardGetNameBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

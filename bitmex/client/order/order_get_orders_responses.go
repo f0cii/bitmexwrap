@@ -99,7 +99,7 @@ type OrderGetOrdersBadRequest struct {
 }
 
 func (o *OrderGetOrdersBadRequest) Error() string {
-	return fmt.Sprintf("[GET /order][%d] orderGetOrdersBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /order][%d] orderGetOrdersBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *OrderGetOrdersBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

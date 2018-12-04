@@ -32,6 +32,7 @@ func transOrder(o *models.Order) (ret *Order) {
 		PriceAvg: o.AvgPx,
 		Status:   o.OrdStatus,
 		Side:     o.Side,
+		Type:     o.OrdType,
 		Time:     time.Time(o.Timestamp)}
 	return
 }
@@ -98,6 +99,22 @@ func (b *Bitmex) CloseShort(price float64, amount float64, postOnly bool, timeIn
 	return
 }
 
+// PlaceOrder open an order with price
+// side. Buy/Sell
+// orderType. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, MarketWithLeftOverAsLimit, Pegged. Defaults to 'Limit' when `price` is specified. Defaults to 'Stop' when `stopPx` is specified. Defaults to 'StopLimit' when `price` and `stopPx` are specified.
+func (b *Bitmex) PlaceOrder(stopPrice float64, price float64, amount float64, execInst string, timeInForce string, side string, orderType string, comment string) (ret *Order, err error) {
+	if comment == "" {
+		comment = "open long with bitmex api"
+	}
+	nAmount := int32(amount)
+	newOrder, err := b.placeOrder(stopPrice, price, nAmount, side, orderType, comment, execInst, timeInForce)
+	if err != nil {
+		return
+	}
+	ret = transOrder(newOrder)
+	return
+}
+
 // OpenLongMarket open long with market price
 func (b *Bitmex) OpenLongMarket(amount float64) (ret *Order, err error) {
 	comment := "open market long with bitmex api"
@@ -110,7 +127,7 @@ func (b *Bitmex) OpenLongMarket(amount float64) (ret *Order, err error) {
 	return
 }
 
-// CloseLongarket close long with market price
+// CloseLongMarket close long with market price
 func (b *Bitmex) CloseLongMarket(amount float64) (ret *Order, err error) {
 	comment := "close market long with bitmex api"
 	nAmount := 0 - int32(amount)
@@ -262,6 +279,34 @@ func (b *Bitmex) createOrder(price float64, amount int32, side, orderType, comme
 	}
 	if postOnly {
 		execInst := "ParticipateDoNotInitiate"
+		params.ExecInst = &execInst
+	}
+	orderInfo, err := b.api.Order.OrderNew(&params, nil)
+	if err != nil {
+		return
+	}
+	newOrder = orderInfo.Payload
+	return
+}
+
+func (b *Bitmex) placeOrder(stopPrice float64, price float64, amount int32, side, orderType, comment string, execInst string, timeInForce string) (newOrder *models.Order, err error) {
+	params := order.OrderNewParams{
+		Side:     &side,
+		Symbol:   b.symbol,
+		Text:     &comment,
+		OrderQty: &amount,
+		OrdType:  &orderType,
+	}
+	if stopPrice != 0 {
+		params.StopPx = &stopPrice
+	}
+	if price != 0 {
+		params.Price = &price
+	}
+	if timeInForce != "" {
+		params.TimeInForce = &timeInForce
+	}
+	if execInst != "" {
 		params.ExecInst = &execInst
 	}
 	orderInfo, err := b.api.Order.OrderNew(&params, nil)

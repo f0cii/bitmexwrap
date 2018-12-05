@@ -72,7 +72,7 @@ type PositionUpdateRiskLimitOK struct {
 }
 
 func (o *PositionUpdateRiskLimitOK) Error() string {
-	return fmt.Sprintf("[POST /position/riskLimit][%d] positionUpdateRiskLimitOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /position/riskLimit][%d] positionUpdateRiskLimitOK  %+v", 200, *o.Payload)
 }
 
 func (o *PositionUpdateRiskLimitOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type PositionUpdateRiskLimitBadRequest struct {
 }
 
 func (o *PositionUpdateRiskLimitBadRequest) Error() string {
-	return fmt.Sprintf("[POST /position/riskLimit][%d] positionUpdateRiskLimitBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /position/riskLimit][%d] positionUpdateRiskLimitBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *PositionUpdateRiskLimitBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

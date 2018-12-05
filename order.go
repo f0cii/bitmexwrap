@@ -10,5 +10,6 @@ type Order struct {
 	PriceAvg float64
 	Status   string
 	Side     string
+	Type     string
 	Time     time.Time
 }

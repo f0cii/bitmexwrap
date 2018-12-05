@@ -51,7 +51,7 @@ type UserGetWalletOK struct {
 }
 
 func (o *UserGetWalletOK) Error() string {
-	return fmt.Sprintf("[GET /user/wallet][%d] userGetWalletOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /user/wallet][%d] userGetWalletOK  %+v", 200, *o.Payload)
 }
 
 func (o *UserGetWalletOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

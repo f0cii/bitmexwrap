@@ -99,7 +99,7 @@ type InstrumentGetActiveBadRequest struct {
 }
 
 func (o *InstrumentGetActiveBadRequest) Error() string {
-	return fmt.Sprintf("[GET /instrument/active][%d] instrumentGetActiveBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /instrument/active][%d] instrumentGetActiveBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *InstrumentGetActiveBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

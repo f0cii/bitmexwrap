@@ -51,7 +51,7 @@ type UserUpdateOK struct {
 }
 
 func (o *UserUpdateOK) Error() string {
-	return fmt.Sprintf("[PUT /user][%d] userUpdateOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[PUT /user][%d] userUpdateOK  %+v", 200, *o.Payload)
 }
 
 func (o *UserUpdateOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

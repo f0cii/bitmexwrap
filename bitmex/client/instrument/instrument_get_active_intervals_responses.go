@@ -72,7 +72,7 @@ type InstrumentGetActiveIntervalsOK struct {
 }
 
 func (o *InstrumentGetActiveIntervalsOK) Error() string {
-	return fmt.Sprintf("[GET /instrument/activeIntervals][%d] instrumentGetActiveIntervalsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /instrument/activeIntervals][%d] instrumentGetActiveIntervalsOK  %+v", 200, *o.Payload)
 }
 
 func (o *InstrumentGetActiveIntervalsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type InstrumentGetActiveIntervalsBadRequest struct {
 }
 
 func (o *InstrumentGetActiveIntervalsBadRequest) Error() string {
-	return fmt.Sprintf("[GET /instrument/activeIntervals][%d] instrumentGetActiveIntervalsBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /instrument/activeIntervals][%d] instrumentGetActiveIntervalsBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *InstrumentGetActiveIntervalsBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

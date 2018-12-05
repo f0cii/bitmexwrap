@@ -99,7 +99,7 @@ type APIKeyGetBadRequest struct {
 }
 
 func (o *APIKeyGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /apiKey][%d] apiKeyGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /apiKey][%d] apiKeyGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *APIKeyGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

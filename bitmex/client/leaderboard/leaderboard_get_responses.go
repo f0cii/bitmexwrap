@@ -99,7 +99,7 @@ type LeaderboardGetBadRequest struct {
 }
 
 func (o *LeaderboardGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /leaderboard][%d] leaderboardGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /leaderboard][%d] leaderboardGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *LeaderboardGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

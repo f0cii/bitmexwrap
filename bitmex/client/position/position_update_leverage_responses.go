@@ -72,7 +72,7 @@ type PositionUpdateLeverageOK struct {
 }
 
 func (o *PositionUpdateLeverageOK) Error() string {
-	return fmt.Sprintf("[POST /position/leverage][%d] positionUpdateLeverageOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /position/leverage][%d] positionUpdateLeverageOK  %+v", 200, *o.Payload)
 }
 
 func (o *PositionUpdateLeverageOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type PositionUpdateLeverageBadRequest struct {
 }
 
 func (o *PositionUpdateLeverageBadRequest) Error() string {
-	return fmt.Sprintf("[POST /position/leverage][%d] positionUpdateLeverageBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /position/leverage][%d] positionUpdateLeverageBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *PositionUpdateLeverageBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

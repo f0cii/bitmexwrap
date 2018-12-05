@@ -72,7 +72,7 @@ type APIKeyNewOK struct {
 }
 
 func (o *APIKeyNewOK) Error() string {
-	return fmt.Sprintf("[POST /apiKey][%d] apiKeyNewOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /apiKey][%d] apiKeyNewOK  %+v", 200, *o.Payload)
 }
 
 func (o *APIKeyNewOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type APIKeyNewBadRequest struct {
 }
 
 func (o *APIKeyNewBadRequest) Error() string {
-	return fmt.Sprintf("[POST /apiKey][%d] apiKeyNewBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /apiKey][%d] apiKeyNewBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *APIKeyNewBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

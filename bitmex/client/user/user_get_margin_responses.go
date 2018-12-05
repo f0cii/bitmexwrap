@@ -51,7 +51,7 @@ type UserGetMarginOK struct {
 }
 
 func (o *UserGetMarginOK) Error() string {
-	return fmt.Sprintf("[GET /user/margin][%d] userGetMarginOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /user/margin][%d] userGetMarginOK  %+v", 200, *o.Payload)
 }
 
 func (o *UserGetMarginOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -99,7 +99,7 @@ type FundingGetBadRequest struct {
 }
 
 func (o *FundingGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /funding][%d] fundingGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /funding][%d] fundingGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *FundingGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

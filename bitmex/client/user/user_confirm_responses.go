@@ -51,7 +51,7 @@ type UserConfirmOK struct {
 }
 
 func (o *UserConfirmOK) Error() string {
-	return fmt.Sprintf("[POST /user/confirmEmail][%d] userConfirmOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /user/confirmEmail][%d] userConfirmOK  %+v", 200, *o.Payload)
 }
 
 func (o *UserConfirmOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

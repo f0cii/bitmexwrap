@@ -72,7 +72,7 @@ type OrderNewOK struct {
 }
 
 func (o *OrderNewOK) Error() string {
-	return fmt.Sprintf("[POST /order][%d] orderNewOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /order][%d] orderNewOK  %+v", 200, *o.Payload)
 }
 
 func (o *OrderNewOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

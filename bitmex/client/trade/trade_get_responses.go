@@ -99,7 +99,7 @@ type TradeGetBadRequest struct {
 }
 
 func (o *TradeGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /trade][%d] tradeGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /trade][%d] tradeGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *TradeGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -99,7 +99,7 @@ type QuoteGetBucketedBadRequest struct {
 }
 
 func (o *QuoteGetBucketedBadRequest) Error() string {
-	return fmt.Sprintf("[GET /quote/bucketed][%d] quoteGetBucketedBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /quote/bucketed][%d] quoteGetBucketedBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *QuoteGetBucketedBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

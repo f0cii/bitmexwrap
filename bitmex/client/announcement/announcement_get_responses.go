@@ -99,7 +99,7 @@ type AnnouncementGetBadRequest struct {
 }
 
 func (o *AnnouncementGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /announcement][%d] announcementGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /announcement][%d] announcementGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *AnnouncementGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -128,7 +128,7 @@ type AnnouncementGetUnauthorized struct {
 }
 
 func (o *AnnouncementGetUnauthorized) Error() string {
-	return fmt.Sprintf("[GET /announcement][%d] announcementGetUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[GET /announcement][%d] announcementGetUnauthorized  %+v", 401, *o.Payload)
 }
 
 func (o *AnnouncementGetUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -157,7 +157,7 @@ type AnnouncementGetNotFound struct {
 }
 
 func (o *AnnouncementGetNotFound) Error() string {
-	return fmt.Sprintf("[GET /announcement][%d] announcementGetNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /announcement][%d] announcementGetNotFound  %+v", 404, *o.Payload)
 }
 
 func (o *AnnouncementGetNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

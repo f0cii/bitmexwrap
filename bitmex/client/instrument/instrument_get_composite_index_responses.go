@@ -99,7 +99,7 @@ type InstrumentGetCompositeIndexBadRequest struct {
 }
 
 func (o *InstrumentGetCompositeIndexBadRequest) Error() string {
-	return fmt.Sprintf("[GET /instrument/compositeIndex][%d] instrumentGetCompositeIndexBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /instrument/compositeIndex][%d] instrumentGetCompositeIndexBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *InstrumentGetCompositeIndexBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

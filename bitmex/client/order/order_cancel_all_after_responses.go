@@ -99,7 +99,7 @@ type OrderCancelAllAfterBadRequest struct {
 }
 
 func (o *OrderCancelAllAfterBadRequest) Error() string {
-	return fmt.Sprintf("[POST /order/cancelAllAfter][%d] orderCancelAllAfterBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /order/cancelAllAfter][%d] orderCancelAllAfterBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *OrderCancelAllAfterBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

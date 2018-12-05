@@ -99,7 +99,7 @@ type SchemaGetBadRequest struct {
 }
 
 func (o *SchemaGetBadRequest) Error() string {
-	return fmt.Sprintf("[GET /schema][%d] schemaGetBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[GET /schema][%d] schemaGetBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *SchemaGetBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

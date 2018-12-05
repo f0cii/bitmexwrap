@@ -73,7 +73,7 @@ type APIKeyRemoveOK struct {
 }
 
 func (o *APIKeyRemoveOK) Error() string {
-	return fmt.Sprintf("[DELETE /apiKey][%d] apiKeyRemoveOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[DELETE /apiKey][%d] apiKeyRemoveOK  %+v", 200, *o.Payload)
 }
 
 func (o *APIKeyRemoveOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -102,7 +102,7 @@ type APIKeyRemoveBadRequest struct {
 }
 
 func (o *APIKeyRemoveBadRequest) Error() string {
-	return fmt.Sprintf("[DELETE /apiKey][%d] apiKeyRemoveBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[DELETE /apiKey][%d] apiKeyRemoveBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *APIKeyRemoveBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -72,7 +72,7 @@ type PositionIsolateMarginOK struct {
 }
 
 func (o *PositionIsolateMarginOK) Error() string {
-	return fmt.Sprintf("[POST /position/isolate][%d] positionIsolateMarginOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /position/isolate][%d] positionIsolateMarginOK  %+v", 200, *o.Payload)
 }
 
 func (o *PositionIsolateMarginOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -101,7 +101,7 @@ type PositionIsolateMarginBadRequest struct {
 }
 
 func (o *PositionIsolateMarginBadRequest) Error() string {
-	return fmt.Sprintf("[POST /position/isolate][%d] positionIsolateMarginBadRequest  %+v", 400, o.Payload)
+	return fmt.Sprintf("[POST /position/isolate][%d] positionIsolateMarginBadRequest  %+v", 400, *o.Payload)
 }
 
 func (o *PositionIsolateMarginBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

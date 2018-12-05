@@ -22,6 +22,13 @@ type Error struct {
 	Error *ErrorError `json:"error"`
 }
 
+// this error string
+func (m *Error) String() string {
+	s, _ := m.MarshalBinary()
+
+	return string(s)
+}
+
 // Validate validates this error
 func (m *Error) Validate(formats strfmt.Registry) error {
 	var res []error

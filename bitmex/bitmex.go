@@ -376,12 +376,11 @@ func (b *Bitmex) Kline(start, end time.Time, nLimit int, bSize string, partial b
 	startTime := strfmt.DateTime(start)
 	endTime := strfmt.DateTime(end)
 	var nStart int32
-	var nCount int32
-	// var nRet int32
-	nCount = 500
-	if int32(nLimit) < nCount {
-		nCount = int32(nLimit)
-	}
+	var nCount = int32(nLimit)
+	//nCount = 750
+	//if int32(nLimit) < nCount {
+	//	nCount = int32(nLimit)
+	//}
 	params := &trade.TradeGetBucketedParams{Symbol: &b.symbol, BinSize: &bSize, StartTime: &startTime, EndTime: &endTime, Partial: &partial}
 	// for {
 	params.Start = &nStart

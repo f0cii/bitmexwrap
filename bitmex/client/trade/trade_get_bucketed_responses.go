@@ -99,7 +99,7 @@ type TradeGetBucketedBadRequest struct {
 }
 
 func (o *TradeGetBucketedBadRequest) Error() string {
-	return fmt.Sprintf("[GET /trade/bucketed][%d] tradeGetBucketedBadRequest  %+v", 400, *o.Payload)
+	return fmt.Sprintf("[GET /trade/bucketed][%d] tradeGetBucketedBadRequest  %+v", 400, *o.Payload.Error)
 }
 
 func (o *TradeGetBucketedBadRequest) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -128,7 +128,7 @@ type TradeGetBucketedUnauthorized struct {
 }
 
 func (o *TradeGetBucketedUnauthorized) Error() string {
-	return fmt.Sprintf("[GET /trade/bucketed][%d] tradeGetBucketedUnauthorized  %+v", 401, o.Payload)
+	return fmt.Sprintf("[GET /trade/bucketed][%d] tradeGetBucketedUnauthorized  %+v", 401, o.Payload.Error)
 }
 
 func (o *TradeGetBucketedUnauthorized) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -157,7 +157,7 @@ type TradeGetBucketedNotFound struct {
 }
 
 func (o *TradeGetBucketedNotFound) Error() string {
-	return fmt.Sprintf("[GET /trade/bucketed][%d] tradeGetBucketedNotFound  %+v", 404, o.Payload)
+	return fmt.Sprintf("[GET /trade/bucketed][%d] tradeGetBucketedNotFound  %+v", 404, o.Payload.Error)
 }
 
 func (o *TradeGetBucketedNotFound) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

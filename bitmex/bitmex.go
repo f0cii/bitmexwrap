@@ -1,7 +1,10 @@
 package bitmex
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"net/url"
 	"time"
 
@@ -113,6 +116,24 @@ func (b *Bitmex) SetProxy(proxy string) (err error) {
 		return
 	}
 	b.wsAPI.SetProxy(proxy)
+	return
+}
+
+// Info get server information
+func (b *Bitmex) Info() (info Info, err error) {
+	url := fmt.Sprintf("https://%v%v", b.trans.Host, b.trans.BasePath)
+	var response *http.Response
+	response, err = http.Get(url)
+	if err != nil {
+		return
+	}
+	defer response.Body.Close()
+	var body []byte
+	body, err = ioutil.ReadAll(response.Body)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(body, &info)
 	return
 }
 

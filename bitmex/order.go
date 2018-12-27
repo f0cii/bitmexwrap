@@ -37,19 +37,19 @@ func transOrder(o *models.Order) (ret *Order) {
 	return
 }
 
-// Buy open long with price
+// Buy open long with price and amount
 func (b *Bitmex) Buy(price float64, amount float64) (ret *Order, err error) {
 	ret, err = b.OpenLong(price, amount, false, "")
 	return
 }
 
-// Buy open long with price
+// Buy open short with price and amount
 func (b *Bitmex) Sell(price float64, amount float64) (ret *Order, err error) {
 	ret, err = b.OpenShort(price, amount, false, "")
 	return
 }
 
-// OpenLong open long with price
+// OpenLong open long with price and amount
 func (b *Bitmex) OpenLong(price float64, amount float64, postOnly bool, timeInForce string) (ret *Order, err error) {
 	comment := "open long with bitmex api"
 	side := "Buy"
@@ -63,7 +63,7 @@ func (b *Bitmex) OpenLong(price float64, amount float64, postOnly bool, timeInFo
 	return
 }
 
-// CloseLong close long with price
+// CloseLong close long with price and amount
 func (b *Bitmex) CloseLong(price float64, amount float64, postOnly bool, timeInForce string) (ret *Order, err error) {
 	comment := "close long with bitmex api"
 	nAmount := 0 - int32(amount)
@@ -75,7 +75,7 @@ func (b *Bitmex) CloseLong(price float64, amount float64, postOnly bool, timeInF
 	return
 }
 
-// OpenShort open short with price
+// OpenShort open short with price and amount
 func (b *Bitmex) OpenShort(price float64, amount float64, postOnly bool, timeInForce string) (ret *Order, err error) {
 	comment := "open short with bitmex api"
 	nAmount := 0 - int32(amount)
@@ -87,7 +87,7 @@ func (b *Bitmex) OpenShort(price float64, amount float64, postOnly bool, timeInF
 	return
 }
 
-// CloseShort close short with price
+// CloseShort close short with price and amount
 func (b *Bitmex) CloseShort(price float64, amount float64, postOnly bool, timeInForce string) (ret *Order, err error) {
 	comment := "close short with bitmex api"
 	nAmount := int32(amount)
@@ -99,7 +99,7 @@ func (b *Bitmex) CloseShort(price float64, amount float64, postOnly bool, timeIn
 	return
 }
 
-// PlaceOrder open an order with price
+// PlaceOrder open an order with price and amount
 // side. Buy/Sell
 // orderType. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, MarketWithLeftOverAsLimit, Pegged. Defaults to 'Limit' when `price` is specified. Defaults to 'Stop' when `stopPx` is specified. Defaults to 'StopLimit' when `price` and `stopPx` are specified.
 func (b *Bitmex) PlaceOrder(stopPrice float64, price float64, amount float64, execInst string, timeInForce string, side string, orderType string, comment string) (ret *Order, err error) {

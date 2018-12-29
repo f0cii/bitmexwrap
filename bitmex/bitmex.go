@@ -11,7 +11,6 @@ import (
 	. "github.com/sumorf/bitmexwrap"
 
 	"github.com/go-openapi/strfmt"
-	log "github.com/sirupsen/logrus"
 	apiclient "github.com/sumorf/bitmexwrap/bitmex/client"
 	"github.com/sumorf/bitmexwrap/bitmex/client/instrument"
 	"github.com/sumorf/bitmexwrap/bitmex/client/order_book"
@@ -224,15 +223,15 @@ func (b *Bitmex) ContractBalances() (balances map[Contract]Balance, err error) {
 
 // Balance get balance of user
 func (b *Bitmex) Balance() (balance Balance, err error) {
-	var wallet *apiuser.UserGetWalletOK
-	wallet, err = b.api.User.UserGetWallet(&apiuser.UserGetWalletParams{}, nil)
+	var wallet *apiuser.UserGetMarginOK
+	wallet, err = b.api.User.UserGetMargin(&apiuser.UserGetMarginParams{}, nil)
 	if err != nil {
 		return
 	}
-	balance.Available = float64(wallet.Payload.Amount)
-	balance.Balance = float64(wallet.Payload.Amount)
+	balance.Available = float64(wallet.Payload.AvailableMargin)
+	balance.Balance = float64(wallet.Payload.MarginBalance)
 	balance.Currency = *wallet.Payload.Currency
-	balance.Frozen = 0
+	balance.Frozen = float64(wallet.Payload.InitMargin)
 	return
 }
 
@@ -379,11 +378,11 @@ func (b *Bitmex) SetContract(contract string) (err error) {
 // SetLever set contract lever
 func (b *Bitmex) SetLever(lever float64) (err error) {
 	b.lever = lever
-	pos, err := b.api.Position.PositionUpdateLeverage(&position.PositionUpdateLeverageParams{Symbol: b.symbol, Leverage: lever}, nil)
+	_, err = b.api.Position.PositionUpdateLeverage(&position.PositionUpdateLeverageParams{Symbol: b.symbol, Leverage: lever}, nil)
 	if err != nil {
 		return
 	}
-	log.Println("set lever:", pos)
+	//log.Println("set lever:", pos)
 	return
 }
 

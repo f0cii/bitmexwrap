@@ -200,9 +200,9 @@ func (r *RequestBuffer) GetBody() []byte {
 }
 
 func (r *RequestBuffer) GetBodyParam() interface{} {
-	return nil
+	return r.payload
 }
 
 func (r *RequestBuffer) GetFileParam() map[string][]runtime.NamedReadCloser {
-	return nil
+	return r.fileFields
 }

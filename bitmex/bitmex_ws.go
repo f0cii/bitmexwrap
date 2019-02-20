@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -27,8 +28,9 @@ const (
 	testBitmexWSURL = "wss://testnet.bitmex.com/realtime"
 
 	// Bitmex websocket op
-	BitmexWSOrderbookL2  = "orderBookL2" // Full level 2 orderBook
-	BitmexWSOrderbookL10 = "orderBook10" // Top 10 levels using traditional full book push
+	BitmexWSOrderbookL2    = "orderBookL2"    // Full level 2 orderBook
+	BitmexWSOrderbookL2_25 = "orderBookL2_25" // 前 25 层的 Level 2 委托列表
+	BitmexWSOrderbook10    = "orderBook10"    // Top 10 levels using traditional full book push
 
 	BitmexWSTrade      = "trade"      // Live trades
 	BitmexWSTradeBin1m = "tradeBin1m" // 1-minute trade bins
@@ -56,7 +58,7 @@ const (
 	bitmexActionDeleteData  = "delete"
 	bitmexActionUpdateData  = "update"
 
-	WSTimeOut = 5 * time.Second
+	WSTimeOut = 30 * time.Second
 )
 
 type SubscribeInfo struct {
@@ -451,7 +453,7 @@ func (bw *BitmexWS) handleMessage() {
 			}
 			continue
 		}
-		bw.timer.Reset(WSTimeOut)
+		//bw.timer.Reset(WSTimeOut)
 		var ret Resp
 		err = ret.Decode(data)
 		if err != nil {
@@ -470,6 +472,10 @@ func (bw *BitmexWS) handleMessage() {
 			switch ret.Table {
 			case BitmexWSOrderbookL2:
 				err = bw.processOrderbook(&ret)
+			case BitmexWSOrderbookL2_25:
+				err = bw.processOrderbook(&ret)
+			case BitmexWSOrderbook10:
+				err = bw.processOrderbook10(&ret)
 			case BitmexWSTrade:
 				err = bw.processTrade(&ret)
 			case BitmexWSAnnouncement:
@@ -489,6 +495,36 @@ func (bw *BitmexWS) handleMessage() {
 		}
 
 	}
+}
+
+func (bw *BitmexWS) processOrderbook10(msg *Resp) (err error) {
+	datas := msg.GetOrderbook10()
+
+	for _, elem := range datas {
+		var depth Depth
+
+		for _, v := range elem.Bids {
+			depth.Buys = append(depth.Buys, DepthInfo{Price: v[0], Amount: v[1]})
+		}
+		for _, v := range elem.Asks {
+			depth.Sells = append(depth.Sells, DepthInfo{Price: v[0], Amount: v[1]})
+		}
+
+		sort.Slice(depth.Buys, func(i, j int) bool {
+			return depth.Buys[i].Price > depth.Buys[j].Price
+		})
+		sort.Slice(depth.Sells, func(i, j int) bool {
+			return depth.Sells[i].Price < depth.Sells[j].Price
+		})
+		depth.Symbol = elem.Symbol
+		depth.UpdateTime = elem.Timestamp
+		// bw.SetLastDepth(depth)
+		if bw.depthChan != nil {
+			bw.depthChan <- depth
+		}
+	}
+
+	return
 }
 
 func (bw *BitmexWS) processOrderbook(msg *Resp) (err error) {
@@ -515,7 +551,6 @@ func (bw *BitmexWS) processOrderbook(msg *Resp) (err error) {
 					updated--
 				}
 			}
-
 		}
 	case bitmexActionInsertData:
 		if bw.partialLoadedOrderbook {
@@ -523,7 +558,6 @@ func (bw *BitmexWS) processOrderbook(msg *Resp) (err error) {
 				bw.orderBook[elem.Key()] = elem
 				updated--
 			}
-
 		}
 	case bitmexActionDeleteData:
 		if bw.partialLoadedOrderbook {

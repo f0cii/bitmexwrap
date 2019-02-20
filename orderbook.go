@@ -12,5 +12,6 @@ type Depth Orderbook
 type Orderbook struct {
 	Sells      []DepthInfo
 	Buys       []DepthInfo
+	Symbol     string
 	UpdateTime time.Time
 }

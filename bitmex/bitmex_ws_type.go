@@ -34,6 +34,14 @@ type OrderBookL2 struct {
 	Symbol string  `json:"symbol"`
 }
 
+// OrderBook10 contains order book 10
+type OrderBook10 struct {
+	Bids      [][]float64 `json:"bids"`
+	Asks      [][]float64 `json:"asks"`
+	Timestamp time.Time   `json:"timestamp"`
+	Symbol    string      `json:"symbol"`
+}
+
 type TradeBitmex models.Trade
 
 // Trade Individual & Bucketed Trades
@@ -115,6 +123,8 @@ func (od *OrderBookData) GetDataToMap(ret OrderBookMap) {
 	return
 }
 
+type OrderBook10Data []*OrderBook10
+
 type Resp struct {
 	Request WSCmd `json:"request"`
 	SubscribeResp
@@ -149,6 +159,13 @@ func (r *Resp) Decode(buf []byte) (err error) {
 		switch r.Table {
 		case BitmexWSOrderbookL2:
 			var orderbooks OrderBookData
+			err = json.Unmarshal([]byte(raw), &orderbooks)
+			if err != nil {
+				return
+			}
+			r.data = orderbooks
+		case BitmexWSOrderbook10:
+			var orderbooks OrderBook10Data
 			err = json.Unmarshal([]byte(raw), &orderbooks)
 			if err != nil {
 				return
@@ -210,6 +227,14 @@ func (r *Resp) GetOrderbookL2() (orderbook OrderBookData) {
 		return
 	}
 	orderbook, _ = r.data.(OrderBookData)
+	return
+}
+
+func (r *Resp) GetOrderbook10() (orderbook OrderBook10Data) {
+	if r.Table != BitmexWSOrderbook10 || r.data == nil {
+		return
+	}
+	orderbook, _ = r.data.(OrderBook10Data)
 	return
 }
 

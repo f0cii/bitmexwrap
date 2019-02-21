@@ -81,8 +81,9 @@ type BitmexWS struct {
 	pos                    PositionMap
 	orders                 *OrderMap
 
-	pongChan chan int
-	shutdown *Shutdown
+	pongChan     chan int
+	reconnctChan chan int
+	shutdown     *Shutdown
 
 	lastDepth      Depth
 	lastDepthMutex sync.RWMutex
@@ -125,6 +126,7 @@ func NewBitmexWSWithURL(symbol, key, secret, proxy, wsURL string) (bw *BitmexWS)
 	bw.pos = NewPositionMap()
 	bw.orders = NewOrderMap()
 	bw.pongChan = make(chan int, 1)
+	bw.reconnctChan = make(chan int, 1)
 	bw.shutdown = NewRoutineManagement()
 	bw.timer = time.NewTimer(WSTimeOut)
 	bw.subcribeTypes = []SubscribeInfo{
@@ -284,6 +286,8 @@ func (bw *BitmexWS) Connect() (err error) {
 
 	bw.partialLoadedOrderbook = false
 	bw.partialLoadedTrades = false
+	bw.reconnctChan = make(chan int, 1)
+
 	var welcome Welcome
 	err = json.Unmarshal(p, &welcome)
 	if err != nil {
@@ -343,8 +347,22 @@ func (bw *BitmexWS) connectionHandler() {
 					log.Warningln("Bitmex websocket: Connection timed out - Reconnecting...")
 					bw.reconnect()
 					return
+				case <-bw.reconnctChan:
+					log.Warningln("Bitmex websocket: Connection disconnect - Closing connection....")
+					bw.wsConn.Close()
+
+					log.Warningln("Bitmex websocket: Connection disconnect - Reconnecting...")
+					bw.reconnect()
+					return
 				}
 			}
+		case <-bw.reconnctChan:
+			log.Warningln("Bitmex websocket: Connection disconnect - Closing connection....")
+			bw.wsConn.Close()
+
+			log.Warningln("Bitmex websocket: Connection disconnect - Reconnecting...")
+			bw.reconnect()
+			return
 		case <-shutdown:
 			log.Errorln("Bitmex websocket: shutdown requested - Closing connection....")
 			bw.wsConn.Close()
@@ -438,6 +456,7 @@ func (bw *BitmexWS) handleMessage() {
 		_, data, err = bw.wsConn.ReadMessage()
 		if err != nil {
 			log.Error("Bitmex websocket read error:", err.Error())
+			bw.reconnctChan <- 1
 			return
 		}
 		msg = string(data)

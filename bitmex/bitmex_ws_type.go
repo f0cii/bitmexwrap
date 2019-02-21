@@ -305,6 +305,7 @@ func transTrade(v *models.Trade) (t Trade) {
 	t = Trade{ID: v.TrdMatchID, Price: v.Price,
 		Amount: float64(v.Size), Side: v.Side,
 		Remark: v.TickDirection,
+		Symbol: *v.Symbol,
 		Time:   time.Time(*v.Timestamp)}
 	return
 }

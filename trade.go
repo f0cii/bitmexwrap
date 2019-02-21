@@ -34,6 +34,7 @@ func (at ActionType) String() (msg string) {
 
 type Trade struct {
 	ID     string
+	Symbol string
 	Time   time.Time
 	Price  float64
 	Amount float64

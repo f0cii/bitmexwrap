@@ -206,3 +206,7 @@ func (r *RequestBuffer) GetBodyParam() interface{} {
 func (r *RequestBuffer) GetFileParam() map[string][]runtime.NamedReadCloser {
 	return r.fileFields
 }
+
+func (r *RequestBuffer) GetHeaderParams() http.Header {
+	return r.header
+}

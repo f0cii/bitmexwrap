@@ -449,6 +449,12 @@ func (bw *BitmexWS) subscribe() (err error) {
 }
 
 func (bw *BitmexWS) handleMessage() {
+	defer func() {
+		if e := recover(); e != nil {
+			log.Errorf("handleMessage error: %v", e)
+		}
+	}()
+
 	var data []byte
 	var msg string
 	var err error

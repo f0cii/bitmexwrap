@@ -26,14 +26,15 @@ var (
 
 func transOrder(o *models.Order) (ret *Order) {
 	ret = &Order{OrderID: *o.OrderID,
-		Currency: o.Currency,
-		Amount:   float64(o.OrderQty),
-		Price:    o.Price,
-		PriceAvg: o.AvgPx,
-		Status:   o.OrdStatus,
-		Side:     o.Side,
-		Type:     o.OrdType,
-		Time:     time.Time(o.Timestamp)}
+		Currency:   o.Currency,
+		Amount:     float64(o.OrderQty),
+		DealAmount: float64(o.CumQty),
+		Price:      o.Price,
+		PriceAvg:   o.AvgPx,
+		Status:     o.OrdStatus,
+		Side:       o.Side,
+		Type:       o.OrdType,
+		Time:       time.Time(o.Timestamp)}
 	return
 }
 

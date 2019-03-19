@@ -97,6 +97,7 @@ type BitmexWS struct {
 	lastOrder      []Order
 	lastOrderMutex sync.RWMutex
 
+	orderChan chan []Order
 	tradeChan chan Trade
 	depthChan chan Depth
 	klineChan map[string]chan *Candle
@@ -255,6 +256,10 @@ func (bw *BitmexWS) GetLastOrder(oid string) (order Order, err error) {
 		err = NoOrderFound
 	}
 	return
+}
+
+func (bw *BitmexWS) SetOrderChan(orderChan chan []Order) {
+	bw.orderChan = orderChan
 }
 
 func (bw *BitmexWS) SetTradeChan(tradeChan chan Trade) {
@@ -667,6 +672,12 @@ func (bw *BitmexWS) processOrder(msg *Resp) (err error) {
 		err = fmt.Errorf("unsupport action:%s", msg.Action)
 		return
 	}
+	orders := []Order{}
+	for _, v := range datas {
+		orders = append(orders, *transOrder(v))
+	}
+	bw.orderChan <- orders
+
 	bw.SetLastOrders(bw.orders.Orders())
 	return
 }

@@ -192,6 +192,13 @@ func (r *Resp) Decode(buf []byte) (err error) {
 				return
 			}
 			r.data = pos
+		case BitmexWSExecution:
+			var executions []*models.Execution
+			err = json.Unmarshal([]byte(raw), &executions)
+			if err != nil {
+				return
+			}
+			r.data = executions
 		case BitmexWSOrder:
 			var orders []*models.Order
 			err = json.Unmarshal([]byte(raw), &orders)
@@ -243,6 +250,14 @@ func (r *Resp) GetPostions() (positions []*models.Position) {
 		return
 	}
 	positions, _ = r.data.([]*models.Position)
+	return
+}
+
+func (r *Resp) GetExecution() (execution []*models.Execution) {
+	if r.Table != BitmexWSExecution || r.data == nil {
+		return
+	}
+	execution, _ = r.data.([]*models.Execution)
 	return
 }
 

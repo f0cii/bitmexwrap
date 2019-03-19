@@ -97,11 +97,12 @@ type BitmexWS struct {
 	lastOrder      []Order
 	lastOrderMutex sync.RWMutex
 
-	orderChan chan []Order
-	tradeChan chan Trade
-	depthChan chan Depth
-	klineChan map[string]chan *Candle
-	timer     *time.Timer
+	executionChan chan []Trade
+	orderChan     chan []Order
+	tradeChan     chan Trade
+	depthChan     chan Depth
+	klineChan     map[string]chan *Candle
+	timer         *time.Timer
 
 	subcribeTypes []SubscribeInfo
 }
@@ -134,6 +135,7 @@ func NewBitmexWSWithURL(symbol, key, secret, proxy, wsURL string) (bw *BitmexWS)
 		SubscribeInfo{Op: BitmexWSOrderbookL2, Param: bw.symbol},
 		SubscribeInfo{Op: BitmexWSTrade, Param: bw.symbol},
 		SubscribeInfo{Op: BitmexWSPosition, Param: bw.symbol},
+		SubscribeInfo{Op: BitmexWSExecution, Param: bw.symbol},
 		SubscribeInfo{Op: BitmexWSOrder, Param: bw.symbol},
 	}
 	bw.klineChan = make(map[string]chan *Candle)
@@ -256,6 +258,10 @@ func (bw *BitmexWS) GetLastOrder(oid string) (order Order, err error) {
 		err = NoOrderFound
 	}
 	return
+}
+
+func (bw *BitmexWS) SetExecutionChan(executionChan chan []Trade) {
+	bw.executionChan = executionChan
 }
 
 func (bw *BitmexWS) SetOrderChan(orderChan chan []Order) {
@@ -513,6 +519,8 @@ func (bw *BitmexWS) handleMessage() {
 			case BitmexWSPosition:
 				// log.Debug("processPosition", msg)
 				err = bw.processPosition(&ret)
+			case BitmexWSExecution:
+				err = bw.processExecution(&ret)
 			case BitmexWSOrder:
 				err = bw.processOrder(&ret)
 			case BitmexWSTradeBin1m, BitmexWSTradeBin5m, BitmexWSTradeBin1h, BitmexWSTradeBin1d:
@@ -658,6 +666,28 @@ func (bw *BitmexWS) processPosition(msg *Resp) (err error) {
 		return
 	}
 	bw.SetLastPos(bw.pos.Pos())
+	return
+}
+
+func (bw *BitmexWS) processExecution(msg *Resp) (err error) {
+	datas := msg.GetExecution()
+	trades := []Trade{}
+	for _, v := range datas {
+		amount := float64(v.CumQty)
+		if amount == 0.0 {
+			continue
+		}
+		trades = append(trades, Trade{
+			ID:     *v.ExecID,
+			Symbol: v.Symbol,
+			Time:   time.Time(v.Timestamp),
+			Price:  v.Price,
+			Amount: amount,
+			Side:   v.Side,
+			Remark: "",
+		})
+	}
+	bw.executionChan <- trades
 	return
 }
 

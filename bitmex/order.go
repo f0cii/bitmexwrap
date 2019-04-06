@@ -389,6 +389,23 @@ func (b *Bitmex) GetOrders() (orders []Order, err error) {
 	return
 }
 
+// GetOrders get all open orders
+func (b *Bitmex) GetOpenOrders() (orders []Order, err error) {
+	filters := `{"open":true}`
+	params := order.OrderGetOrdersParams{
+		Symbol: &b.symbol,
+		Filter: &filters,
+	}
+	orderInfo, err := b.api.Order.OrderGetOrders(&params, nil)
+	if err != nil {
+		return
+	}
+	for _, v := range orderInfo.Payload {
+		orders = append(orders, *transOrder(v))
+	}
+	return
+}
+
 // GetOrder get an active orders
 func (b *Bitmex) GetOrder(oid string) (newOrder *Order, err error) {
 	filters := fmt.Sprintf(`{"orderID":"%s"}`, oid)

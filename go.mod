@@ -1,4 +1,6 @@
-module github.com/sumorf/bitmexwrap
+module github.com/frankrap/bitmexwrap
+
+go 1.14
 
 require (
 	github.com/go-openapi/errors v0.19.0

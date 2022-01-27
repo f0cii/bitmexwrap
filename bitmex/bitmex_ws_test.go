@@ -3,7 +3,7 @@ package bitmex
 import (
 	"testing"
 
-	. "github.com/sumorf/bitmexwrap"
+	. "github.com/frankrap/bitmexwrap"
 
 	log "github.com/sirupsen/logrus"
 )

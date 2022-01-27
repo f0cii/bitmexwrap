@@ -1,7 +1,7 @@
 package bitmex
 
 import (
-	. "github.com/sumorf/bitmexwrap"
+	. "github.com/frankrap/bitmexwrap"
 )
 
 func GetClientByName(name string, bTest bool) (bm *Bitmex) {

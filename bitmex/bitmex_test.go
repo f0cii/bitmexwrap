@@ -5,8 +5,8 @@ import (
 	"log"
 	"testing"
 
-	. "github.com/sumorf/bitmexwrap"
-	"github.com/sumorf/bitmexwrap/bitmex/models"
+	. "github.com/frankrap/bitmexwrap"
+	"github.com/frankrap/bitmexwrap/bitmex/models"
 )
 
 func GetClient() (bm *Bitmex) {

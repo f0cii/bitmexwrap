@@ -15,11 +15,11 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
-	. "github.com/sumorf/bitmexwrap"
+	. "github.com/frankrap/bitmexwrap"
 
+	"github.com/frankrap/bitmexwrap/bitmex/models"
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
-	"github.com/sumorf/bitmexwrap/bitmex/models"
 )
 
 const (

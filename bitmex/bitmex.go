@@ -8,16 +8,16 @@ import (
 	"net/url"
 	"time"
 
-	. "github.com/sumorf/bitmexwrap"
+	. "github.com/frankrap/bitmexwrap"
 
+	apiclient "github.com/frankrap/bitmexwrap/bitmex/client"
+	"github.com/frankrap/bitmexwrap/bitmex/client/instrument"
+	"github.com/frankrap/bitmexwrap/bitmex/client/order_book"
+	"github.com/frankrap/bitmexwrap/bitmex/client/position"
+	"github.com/frankrap/bitmexwrap/bitmex/client/trade"
+	apiuser "github.com/frankrap/bitmexwrap/bitmex/client/user"
+	"github.com/frankrap/bitmexwrap/bitmex/models"
 	"github.com/go-openapi/strfmt"
-	apiclient "github.com/sumorf/bitmexwrap/bitmex/client"
-	"github.com/sumorf/bitmexwrap/bitmex/client/instrument"
-	"github.com/sumorf/bitmexwrap/bitmex/client/order_book"
-	"github.com/sumorf/bitmexwrap/bitmex/client/position"
-	"github.com/sumorf/bitmexwrap/bitmex/client/trade"
-	apiuser "github.com/sumorf/bitmexwrap/bitmex/client/user"
-	"github.com/sumorf/bitmexwrap/bitmex/models"
 )
 
 const (

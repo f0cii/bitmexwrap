@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	. "github.com/sumorf/bitmexwrap"
+	. "github.com/frankrap/bitmexwrap"
 
+	"github.com/frankrap/bitmexwrap/bitmex/models"
 	log "github.com/sirupsen/logrus"
-	"github.com/sumorf/bitmexwrap/bitmex/models"
 	"github.com/tidwall/gjson"
 )
 
